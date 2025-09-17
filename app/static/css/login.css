@@ -1,0 +1,59 @@
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #74ebd5, #acb6e5);
+  animation: fadeIn 0.8s ease-in-out;
+  padding: 20px;
+}
+
+.card {
+  border: none;
+  border-radius: 12px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* Nút đăng nhập chính */
+.btn-danger {
+  background: #dc3545;
+  border: none;
+  font-weight: 600;
+  transition: background 0.3s ease;
+}
+
+.btn-danger:hover {
+  background: #b02a37;
+}
+
+/* Input password có icon mắt */
+.input-group .toggle-password {
+  cursor: pointer;
+  background: #fff;
+  border-left: none;
+  border-radius: 0 8px 8px 0;
+  padding: 0 12px;
+  display: flex;
+  align-items: center;
+}
+
+.input-group .toggle-password:hover {
+  background: #f1f1f1;
+}
+
+/* Animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

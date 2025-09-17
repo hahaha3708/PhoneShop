@@ -1,0 +1,106 @@
+/* Toàn bộ container */
+.signup-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #74ebd5, #acb6e5);
+  animation: fadeIn 0.8s ease-in-out;
+  padding: 20px;
+}
+
+/* Card form */
+.card {
+  background: #fff;
+  border: none;
+  border-radius: 12px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* Button chính */
+.btn-primary,
+.btn-danger {
+  font-weight: 600;
+  border: none;
+  transition: all 0.3s ease;
+  padding: 10px 16px;
+  border-radius: 8px;
+}
+
+.btn-primary {
+  background: #007bff;
+}
+
+.btn-primary:hover {
+  background: #0056b3;
+}
+
+.btn-danger {
+  background: #dc3545;
+}
+
+.btn-danger:hover {
+  background: #b02a37;
+}
+
+/* Link đăng nhập */
+.link-login {
+  text-decoration: none;
+  font-weight: 600;
+  color: #007bff;
+}
+
+.link-login:hover {
+  color: #0056b3;
+  text-decoration: underline;
+}
+
+/* Nhóm input */
+.input-group .form-control {
+  border-radius: 8px 0 0 8px;
+}
+
+.input-group .toggle-password {
+  cursor: pointer;
+  user-select: none;
+  background: #fff;
+  border-left: none;
+  border-radius: 0 8px 8px 0;
+  padding: 0 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.3s;
+}
+
+.input-group .toggle-password:hover {
+  background: #f1f1f1;
+}
+
+/* Animation xuất hiện */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Checkbox & Switch */
+.form-check-label {
+  font-size: 0.95rem;
+  color: #333;
+}
+
+.form-check-input:checked {
+  background-color: #007bff;
+  border-color: #007bff;
+}

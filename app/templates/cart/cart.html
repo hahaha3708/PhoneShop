@@ -1,0 +1,103 @@
+{% extends 'base.html' %} {% load static %} {% load currency %} {% block title
+%}Giỏ hàng - PhoneShop {% block content %}
+<div class="container mt-4">
+  <h1 class="h4 mb-4">Giỏ hàng ({{ items|length }})</h1>
+
+  {% if items %}
+  <div class="table-responsive">
+    <table class="table align-middle">
+      <thead>
+        <tr>
+          <th>Sản phẩm</th>
+          <th>Đơn giá</th>
+          <th>Số lượng</th>
+          <th>Thành tiền</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in items %}
+        <tr>
+          <td class="d-flex align-items-center gap-2">
+            <img
+              src="{{ item.image }}"
+              width="56"
+              class="rounded border"
+              alt="{{ item.name }}"
+            />
+            <div>
+              <div class="fw-semibold">{{ item.name }}</div>
+              <small class="text-muted">
+                {{ item.capacity }} {{ item.color }}
+              </small>
+            </div>
+          </td>
+          <td>{{ item.price|vnd }}</td>
+          <td style="max-width: 120px">
+            <div class="input-group">
+              <button
+                class="btn btn-outline-secondary"
+                data-qty-minus
+                data-id="{{ item.key }}"
+              >
+                -
+              </button>
+              <input
+                class="form-control text-center"
+                value="{{ item.quantity }}"
+                readonly
+              />
+              <button
+                class="btn btn-outline-secondary"
+                data-qty-plus
+                data-id="{{ item.key }}"
+              >
+                +
+              </button>
+            </div>
+          </td>
+          <td class="fw-semibold">{{ item.total|vnd }}</td>
+          <td>
+            <button
+              class="btn btn-link text-danger"
+              data-remove
+              data-id="{{ item.key }}"
+            >
+              Xóa
+            </button>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="d-flex justify-content-between align-items-center mt-4">
+    <a href="{% url 'shop:product_list' %}" class="btn btn-outline-secondary">
+      Tiếp tục mua
+    </a>
+    <div class="text-end">
+      <div>Tạm tính: <strong>{{ subtotal|vnd }}</strong></div>
+      <div>Phí vận chuyển: <strong>{{ shipping|vnd }}</strong></div>
+      <div class="fs-5">
+        Tổng: <strong class="text-danger">{{ total|vnd }}</strong>
+      </div>
+      <a href="{% url 'shop:checkout' %}" class="btn btn-primary mt-2">
+        Thanh toán
+      </a>
+    </div>
+  </div>
+  {% else %}
+  <p>Giỏ hàng của bạn đang trống.</p>
+  <a href="{% url 'shop:product_list' %}" class="btn btn-primary">
+    Mua sắm ngay
+  </a>
+  {% endif %}
+</div>
+{% endblock %} {% block extra_scripts %}
+<script>
+  const csrfToken = "{{ csrf_token }}";
+  const updateUrl = "{% url 'shop:update_cart' %}";
+</script>
+<script src="{% static 'js/cart_update.js' %}"></script>
+{% endblock %}

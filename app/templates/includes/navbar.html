@@ -1,0 +1,172 @@
+<nav
+  class="navbar navbar-expand-lg bg-body-tertiary border-bottom sticky-top shadow-sm"
+>
+  <div class="container">
+    <!-- Logo -->
+    <a class="navbar-brand fw-bold text-primary" href="/">📱 PhoneShop</a>
+
+    <!-- Toggle mobile -->
+    <button
+      class="navbar-toggler"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#nav"
+      aria-controls="nav"
+      aria-expanded="false"
+      aria-label="Toggle navigation"
+    >
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <!-- Main nav -->
+    <div class="collapse navbar-collapse" id="nav">
+      <!-- Left menu -->
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <!-- Sản phẩm -->
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'shop:product_list' %}">Sản phẩm</a>
+        </li>
+
+        <!-- Điện thoại -->
+        <li class="nav-item">
+          <a
+            class="nav-link"
+            href="{% url 'shop:product_list' %}?category=dien-thoai"
+          >
+            <i class="bi bi-phone"></i> Điện thoại
+          </a>
+        </li>
+
+        <!-- Phụ kiện -->
+        <li class="nav-item">
+          <a
+            class="nav-link"
+            href="{% url 'shop:product_list' %}?category=phu-kien"
+          >
+            <i class="bi bi-headphones"></i> Phụ kiện
+          </a>
+        </li>
+
+        <!-- Hãng -->
+        <li class="nav-item dropdown">
+          <a
+            class="nav-link dropdown-toggle"
+            href="#"
+            data-bs-toggle="dropdown"
+          >
+            Hãng
+          </a>
+          <ul class="dropdown-menu">
+            {% for c in categories %}
+            <li>
+              <a
+                class="dropdown-item"
+                href="{% url 'shop:product_list' %}?brand={{ c.slug }}"
+              >
+                {{ c.name }}
+              </a>
+            </li>
+            {% endfor %}
+          </ul>
+        </li>
+      </ul>
+
+      <!-- Search -->
+      <form
+        class="d-flex me-3"
+        role="search"
+        action="{% url 'shop:product_list' %}"
+      >
+        <input
+          class="form-control me-2"
+          type="search"
+          name="q"
+          placeholder="Tìm iPhone 15, Galaxy S24…"
+          aria-label="Search"
+          value="{{ request.GET.q }}"
+        />
+        <button class="btn btn-primary" type="submit">
+          <i class="bi bi-search"></i>
+        </button>
+      </form>
+
+      <!-- Cart -->
+      <a
+        href="{% url 'shop:cart' %}"
+        class="btn btn-outline-secondary position-relative me-3"
+      >
+        <i class="bi bi-cart3"></i>
+        {% if cart_count %}
+        <span
+          class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+        >
+          {{ cart_count }}
+        </span>
+        {% endif %}
+      </a>
+
+      <!-- Auth -->
+      {% if user.is_authenticated %}
+      <div class="dropdown">
+        <a
+          class="btn btn-outline-primary dropdown-toggle"
+          href="#"
+          id="userMenu"
+          role="button"
+          data-bs-toggle="dropdown"
+          aria-expanded="false"
+        >
+          <i class="bi bi-person-circle"></i> {{ user.email }}
+        </a>
+        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
+          <li>
+            <a class="dropdown-item" href="{% url 'logout' %}">Đăng xuất</a>
+          </li>
+        </ul>
+      </div>
+      {% else %}
+      <button
+        class="btn btn-outline-primary"
+        data-bs-toggle="modal"
+        data-bs-target="#authModal"
+      >
+        <i class="bi bi-person-circle"></i> Đăng nhập
+      </button>
+      {% endif %}
+    </div>
+  </div>
+</nav>
+
+<!-- Modal Login/Register -->
+<div
+  class="modal fade"
+  id="authModal"
+  tabindex="-1"
+  aria-labelledby="authModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content shadow-lg">
+      <div class="modal-header">
+        <h5 class="modal-title" id="authModalLabel">Chào mừng bạn</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <div class="d-flex flex-column gap-3 text-center">
+          <a href="{% url 'login' %}" class="btn btn-primary btn-lg"
+            >Đăng nhập</a
+          >
+          <a
+            href="{% url 'app:signup' %}"
+            class="btn btn-outline-secondary btn-lg"
+            >Đăng ký</a
+          >
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

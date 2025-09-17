@@ -1,0 +1,143 @@
+{% extends "base.html" %} {% load static %} {% block content %}
+<link rel="stylesheet" href="{% static 'css/signup.css' %}" />
+
+<div class="signup-container py-5">
+  <div
+    class="card shadow-lg p-4 rounded-4"
+    style="max-width: 700px; margin: auto"
+  >
+    <!-- Đăng ký bằng MXH -->
+    <h4 class="text-center mb-3">Đăng ký bằng tài khoản mạng xã hội</h4>
+    <div class="d-flex gap-3 justify-content-center mb-4">
+      <a
+        href="#"
+        class="btn btn-light border d-flex align-items-center gap-2 px-4"
+      >
+        <img src="{% static 'img/google.png' %}" alt="Google" width="20" />
+      </a>
+      <a
+        href="#"
+        class="btn btn-light border d-flex align-items-center gap-2 px-4"
+      >
+        <img src="{% static 'img/zalo.png' %}" alt="Zalo" width="20" />
+      </a>
+    </div>
+
+    <div class="text-center mb-3 text-muted">Hoặc điền thông tin sau</div>
+
+    <!-- Form đăng ký -->
+    <form method="post" id="signupForm">
+      {% csrf_token %}
+
+      <!-- Thông tin cá nhân -->
+      <h5 class="mb-3">Thông tin cá nhân</h5>
+      <div class="row g-3">
+        <div class="col-md-6">
+          <input
+            type="text"
+            name="fullname"
+            class="form-control"
+            placeholder="Họ và tên"
+            required
+          />
+        </div>
+        <div class="col-md-6">
+          <input
+            type="date"
+            name="dob"
+            class="form-control"
+            placeholder="Ngày sinh"
+          />
+        </div>
+        <div class="col-md-6">
+          <input
+            type="tel"
+            name="phone"
+            class="form-control"
+            placeholder="Số điện thoại"
+            required
+          />
+        </div>
+        <div class="col-md-6">
+          <input
+            type="email"
+            name="email"
+            class="form-control"
+            placeholder="Email (không bắt buộc)"
+          />
+        </div>
+      </div>
+
+      <!-- Tạo mật khẩu -->
+      <h5 class="mt-4 mb-3">Tạo mật khẩu</h5>
+      <div class="row g-3">
+        <div class="col-md-6">
+          <div class="input-group">
+            <input
+              type="password"
+              id="password1"
+              name="password1"
+              class="form-control"
+              placeholder="Mật khẩu"
+              required
+            />
+            <span
+              class="input-group-text toggle-password"
+              onclick="togglePassword('password1', this)"
+            >
+              <img src="/static/img/hide.png" alt="toggle" width="20" />
+            </span>
+          </div>
+          <small class="text-muted"
+            >Mật khẩu tối thiểu 6 ký tự, có ít nhất 1 chữ số và 1 ký tự</small
+          >
+        </div>
+
+        <div class="col-md-6">
+          <div class="input-group">
+            <input
+              type="password"
+              id="password2"
+              name="password2"
+              class="form-control"
+              placeholder="Nhập lại mật khẩu"
+              required
+            />
+            <span
+              class="input-group-text toggle-password"
+              onclick="togglePassword('password2', this)"
+            >
+              <img src="/static/img/hide.png" alt="toggle" width="20" />
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Nhận tin khuyến mãi -->
+      <div class="form-check mt-3">
+        <input
+          type="checkbox"
+          class="form-check-input"
+          id="promo"
+          name="promo"
+        />
+        <label class="form-check-label" for="promo"
+          >Đăng ký nhận tin khuyến mãi từ PhoneShop</label
+        >
+      </div>
+
+      <!-- Nút hành động -->
+      <div class="d-flex justify-content-between mt-4">
+        <a href="{% url 'login' %}" class="btn btn-outline-secondary px-4"
+          >Quay lại đăng nhập</a
+        >
+        <button type="submit" class="btn btn-danger px-4">
+          Hoàn tất đăng ký
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="{% static 'js/signup.js' %}"></script>
+{% endblock %}

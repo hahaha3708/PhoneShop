@@ -1,0 +1,129 @@
+/* Card sản phẩm chi tiết */
+.product-detail-card {
+  border-radius: 10px;
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.product-detail-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+}
+
+.product-detail-card .card-img-top {
+  height: 240px;
+  object-fit: contain;
+  background-color: #f9f9f9;
+  padding: 10px;
+}
+
+/* ============================= */
+/* Trang chi tiết sản phẩm */
+/* ============================= */
+
+/* Ảnh chính */
+.product-main-image {
+  max-width: 450px;
+  border-radius: 10px;
+  border: 1px solid #eee;
+  padding: 10px;
+  background: #fff;
+}
+
+/* Thumbnail */
+.product-thumbnails img {
+  width: 60px;
+  height: 60px;
+  object-fit: contain;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: border 0.2s ease;
+}
+
+.product-thumbnails img:hover {
+  border-color: #0d6efd;
+}
+
+/* Giá */
+.product-price {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: #e63946;
+}
+
+.product-old-price {
+  font-size: 1rem;
+  color: #888;
+  text-decoration: line-through;
+  margin-left: 8px;
+}
+
+/* Chọn dung lượng */
+.product-capacities .btn {
+  min-width: 80px;
+  border-radius: 6px;
+}
+
+.product-capacities .btn.active {
+  border-color: #0d6efd;
+  background: #e9f2ff;
+  color: #0d6efd;
+  font-weight: 600;
+}
+
+/* Chọn màu sắc */
+.product-colors .color-option {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 10px;
+  min-width: 100px;
+  text-align: center;
+  cursor: pointer;
+  transition: border 0.2s ease, box-shadow 0.2s ease;
+}
+
+.product-colors .color-option:hover {
+  border-color: #0d6efd;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.product-colors .color-option.active {
+  border: 2px solid #0d6efd;
+  box-shadow: 0 2px 10px rgba(13, 110, 253, 0.2);
+}
+
+/* Nút mua */
+.product-actions .btn {
+  font-size: 1.1rem;
+  border-radius: 8px;
+  padding: 10px 20px;
+}
+.product-detail {
+  margin-top: 20px;
+}
+
+.gallery-thumb {
+  width: 60px;
+  height: 60px;
+  object-fit: contain;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.gallery-thumb:hover {
+  border: 2px solid #007bff;
+}
+
+.capacity-btn.active,
+.color-btn.active {
+  border: 2px solid #007bff;
+  background-color: #e9f3ff;
+}
+.capacity-btn.active,
+.color-btn.active {
+  border: 2px solid #0d6efd;
+  background-color: #e7f1ff;
+  color: #0d6efd;
+  font-weight: bold;
+}

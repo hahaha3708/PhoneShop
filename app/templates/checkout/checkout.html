@@ -1,0 +1,71 @@
+{% extends 'base.html' %} {% load currency %} {% block title %}Thanh toán -
+PhoneShop{% endblock %} {% block content %}
+<h1 class="h4 mb-3">Thanh toán</h1>
+<div class="row g-4">
+  <div class="col-lg-7">
+    <form class="needs-validation" novalidate>
+      <div class="row g-3">
+        <div class="col-sm-6">
+          <label class="form-label">Họ tên</label>
+          <input type="text" class="form-control" required />
+          <div class="invalid-feedback">Vui lòng nhập họ tên.</div>
+        </div>
+        <div class="col-sm-6">
+          <label class="form-label">Số điện thoại</label>
+          <input type="tel" class="form-control" required />
+          <div class="invalid-feedback">Vui lòng nhập số điện thoại.</div>
+        </div>
+        <div class="col-12">
+          <label class="form-label">Địa chỉ</label>
+          <input
+            type="text"
+            class="form-control"
+            placeholder="Số nhà, đường, phường/xã, quận/huyện, tỉnh/thành"
+            required
+          />
+          <div class="invalid-feedback">Vui lòng nhập địa chỉ.</div>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Phương thức thanh toán</label>
+          <select class="form-select" required>
+            <option value="">Chọn…</option>
+            <option>Thanh toán khi nhận hàng (COD)</option>
+            <option>Chuyển khoản</option>
+            <option>Thẻ/Ví điện tử</option>
+          </select>
+          <div class="invalid-feedback">Vui lòng chọn phương thức.</div>
+        </div>
+      </div>
+      <hr class="my-4" />
+      <button class="btn btn-primary btn-lg" type="submit">Đặt hàng</button>
+    </form>
+  </div>
+
+  <div class="col-lg-5">
+    <div class="card">
+      <div class="card-body">
+        <h2 class="h6">Đơn hàng</h2>
+        <ul class="list-group list-group-flush mb-3">
+          {% for item in items %}
+          <li
+            class="list-group-item d-flex justify-content-between align-items-center"
+          >
+            <span>{{ item.name }} × {{ item.qty }}</span>
+            <strong>{{ item.total|vnd }}</strong>
+          </li>
+          {% endfor %}
+        </ul>
+        <div class="d-flex justify-content-between">
+          <span>Tạm tính</span><strong>{{ subtotal|vnd }}</strong>
+        </div>
+        <div class="d-flex justify-content-between">
+          <span>Vận chuyển</span><strong>{{ shipping|vnd }}</strong>
+        </div>
+        <div class="d-flex justify-content-between fs-5 mt-2">
+          <span>Tổng</span><strong class="text-danger">{{ total|vnd }}</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
