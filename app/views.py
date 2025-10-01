@@ -4,6 +4,12 @@ from django.http import HttpResponse
 from .models import Product, Category
 from django.http import JsonResponse
 from .models import ProductVariant
+from django.shortcuts import render, get_object_or_404
+from django.db.models import Q, Min
+from .models import Accessory, AccessoryCategory, AccessoryColor, AccessoryVariant
+from itertools import chain
+from django.core.paginator import Paginator
+from django.db.models import Value, CharField, F, Q
 # def home(request):
 #     new_products = Product.objects.all().order_by('-id')[:12]  # lấy 12 sản phẩm mới nhất
 #     return render(request, 'home.html', {'new_products': new_products})
@@ -275,3 +281,143 @@ def get_price(request):
         return JsonResponse({"price": int(variant.price)})
     except ProductVariant.DoesNotExist:
         return JsonResponse({"price": 0})
+    
+# phần phụ kiện
+
+def accessory_list(request):
+    cat_slug = request.GET.get("cat", "")
+    q = request.GET.get("q", "")
+    sort = request.GET.get("sort", "")  # price_asc | price_desc | new
+
+    categories = AccessoryCategory.objects.all().order_by("name")
+
+    items = Accessory.objects.all().select_related("category")
+
+    if cat_slug:
+        items = items.filter(category__slug=cat_slug)
+
+    if q:
+        items = items.filter(
+            Q(name__icontains=q) | Q(brand__icontains=q) | Q(specs__icontains=q)
+        )
+
+    # Lấy giá hiển thị mặc định = min giá trong các variant (nếu có), còn không thì lấy price
+    items = items.annotate(min_variant_price=Min("accessoryvariant__price"))
+
+    if sort == "price_asc":
+        items = items.order_by("min_variant_price", "price")
+    elif sort == "price_desc":
+        items = items.order_by("-min_variant_price", "-price")
+    elif sort == "new":
+        items = items.order_by("-id")
+    else:
+        items = items.order_by("name")
+
+    ctx = {
+        "categories": categories,
+        "items": items,
+        "active_cat": cat_slug,
+        "q": q,
+        "sort": sort,
+    }
+    return render(request, "products/accessories_list.html", ctx)
+
+
+
+def accessory_detail(request, slug):
+    acc = get_object_or_404(
+        Accessory.objects.select_related("category"),
+        slug=slug
+    )
+
+    # Lấy toàn bộ màu + biến thể để client đổi giá
+    colors = AccessoryColor.objects.filter(accessory=acc).order_by("id")
+    variants = AccessoryVariant.objects.filter(accessory=acc).select_related("color")
+
+    # Map {color_id: price}
+    color_prices = {v.color_id: int(v.price) for v in variants}
+
+    ctx = {
+        "acc": acc,
+        "colors": colors,
+        "color_prices": color_prices,
+        # giá mặc định: nếu có variant → min variant, không có → acc.price
+        "default_price": min(color_prices.values()) if color_prices else int(acc.price),
+    }
+    return render(request, "products/accessory_detail.html", ctx)
+
+# tất cả điện thoại + phụ kiện
+# def all_items_list(request):
+#     brand = request.GET.get("brand")
+#     sort = request.GET.get("sort")
+
+#     # Lấy cả điện thoại + phụ kiện
+#     products = list(Product.objects.all())
+#     accessories = list(Accessory.objects.all())
+
+#     items = products + accessories
+
+#     # Nếu lọc theo brand
+#     if brand:
+#         items = [i for i in items if getattr(i, "brand", "").lower() == brand.lower()]
+
+#     # TODO: nếu cần sắp xếp, bạn xử lý tiếp ở đây
+
+#     ctx = {"items": items, "brand": brand}
+#     return render(request, "products/all_items_list.html", ctx)
+def all_items_list(request):
+    q     = (request.GET.get("q") or "").strip()
+    brand = (request.GET.get("brand") or "").strip()
+    sort  = (request.GET.get("sort") or "").strip()
+
+    # Phones
+    phones_qs = (Product.objects
+                 .all()
+                 .annotate(kind=Value("phone", output_field=CharField()),
+                           final_price=F("price"))
+                 .values("id", "name", "slug", "brand", "image", "final_price", "kind"))
+
+    # Accessories
+    accs_qs = (Accessory.objects
+               .all()
+               .annotate(kind=Value("accessory", output_field=CharField()),
+                         final_price=F("price"))  # nếu bạn có min_variant_price, đổi F("price") -> Coalesce("min_variant_price","price")
+               .values("id", "name", "slug", "brand", "image", "final_price", "kind"))
+
+    # Lọc theo từ khóa
+    if q:
+        phones_qs = phones_qs.filter(name__icontains=q)
+        accs_qs   = accs_qs.filter(name__icontains=q)
+
+    # Lọc theo hãng (tất cả hãng từ cả hai loại)
+    if brand:
+        phones_qs = phones_qs.filter(brand__iexact=brand)
+        accs_qs   = accs_qs.filter(brand__iexact=brand)
+
+    # Gom 2 nguồn lại
+    items = list(chain(phones_qs, accs_qs))
+
+    # Sắp xếp
+    if sort == "price_asc":
+        items.sort(key=lambda x: x["final_price"] or 0)
+    elif sort == "price_desc":
+        items.sort(key=lambda x: x["final_price"] or 0, reverse=True)
+    elif sort == "newest":
+        items.sort(key=lambda x: x["id"], reverse=True)
+    else:
+        items.sort(key=lambda x: x["name"].lower())
+
+    # Phân trang
+    paginator = Paginator(items, 12)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+
+    ctx = {
+        "items": page_obj.object_list,
+        "page_obj": page_obj,
+        "q": q,
+        "brand": brand,
+        "sort": sort,
+        # dùng all_brands từ context processor để render bộ lọc hãng
+    }
+    return render(request, "products/all_items_list.html", ctx)

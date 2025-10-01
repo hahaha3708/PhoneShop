@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager
-
+from django.utils.text import slugify
 
 # ----- Category -----
 class Category(models.Model):
@@ -70,3 +70,50 @@ class ProductVariant(models.Model):
     capacity = models.ForeignKey(Capacity, on_delete=models.CASCADE)
     color = models.ForeignKey(Color, on_delete=models.CASCADE)
     price = models.DecimalField(max_digits=12, decimal_places=0)
+
+
+
+
+class AccessoryCategory(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+    slug = models.SlugField(max_length=100, unique=True)
+
+    def __str__(self):
+        return self.name
+
+class Accessory(models.Model):
+    name = models.CharField(max_length=200)
+    slug = models.SlugField(max_length=200, unique=True)
+    brand = models.CharField(max_length=100)
+    price = models.DecimalField(max_digits=12, decimal_places=0)
+    image = models.CharField(max_length=200)
+    specs = models.JSONField()  # Django sẽ tạo CHECK json_valid trên MySQL 8+
+    category = models.ForeignKey(AccessoryCategory, on_delete=models.RESTRICT)
+
+    def __str__(self):
+        return self.name
+    def get_absolute_url(self):
+        return reverse("accessory_detail", args=[self.slug])
+class AccessoryColor(models.Model):
+    accessory = models.ForeignKey(Accessory, on_delete=models.CASCADE)
+    name = models.CharField(max_length=50)
+    price = models.DecimalField(max_digits=12, decimal_places=0, null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.accessory.name} - {self.name}"
+
+class AccessoryVariant(models.Model):
+    accessory = models.ForeignKey(Accessory, on_delete=models.CASCADE)
+    color = models.ForeignKey(AccessoryColor, on_delete=models.CASCADE)
+    price = models.DecimalField(max_digits=12, decimal_places=0)
+
+    def __str__(self):
+        return f"{self.accessory.name} / {self.color.name}"
+
+# Tuỳ chọn: tương thích với sản phẩm
+class AccessoryCompatibleProduct(models.Model):
+    accessory = models.ForeignKey(Accessory, on_delete=models.CASCADE)
+    product = models.ForeignKey('app.Product', on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = ('accessory', 'product')

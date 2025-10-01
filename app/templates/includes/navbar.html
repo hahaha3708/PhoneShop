@@ -24,7 +24,9 @@
       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
         <!-- Sản phẩm -->
         <li class="nav-item">
-          <a class="nav-link" href="{% url 'shop:product_list' %}">Sản phẩm</a>
+          <a class="nav-link" href="{% url 'shop:all_items_list' %}"
+            >Sản phẩm</a
+          >
         </li>
 
         <!-- Điện thoại -->
@@ -41,13 +43,14 @@
         <li class="nav-item">
           <a
             class="nav-link"
-            href="{% url 'shop:product_list' %}?category=phu-kien"
+            href="{% url 'shop:accessory_list' %}?category=phu-kien"
           >
             <i class="bi bi-headphones"></i> Phụ kiện
           </a>
         </li>
 
         <!-- Hãng -->
+        {% comment %}
         <li class="nav-item dropdown">
           <a
             class="nav-link dropdown-toggle"
@@ -70,6 +73,47 @@
           </ul>
         </li>
       </ul>
+      {% endcomment %}
+      <!-- Hãng -->
+      <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+          Hãng
+        </a>
+
+        <ul class="dropdown-menu">
+          {% if "/accessories" in request.path %} {# Trang phụ kiện → chỉ hãng
+          phụ kiện #} {% for b in accessory_brands %}
+          <li>
+            <a
+              class="dropdown-item"
+              href="{% url 'shop:accessory_list' %}?brand={{ b|urlencode }}"
+            >
+              {{ b }}
+            </a>
+          </li>
+          {% endfor %} {% elif "/products" in request.path %} {# Trang điện
+          thoại → chỉ hãng điện thoại #} {% for b in phone_brands %}
+          <li>
+            <a
+              class="dropdown-item"
+              href="{% url 'shop:product_list' %}?brand={{ b|urlencode }}"
+            >
+              {{ b }}
+            </a>
+          </li>
+          {% endfor %} {% else %} {# Trang home → tất cả hãng (điện thoại + phụ
+          kiện) #} {% for b in all_brands %}
+          <li>
+            <a
+              class="dropdown-item"
+              href="{% url 'shop:all_items_list' %}?brand={{ b|urlencode }}"
+            >
+              {{ b }}
+            </a>
+          </li>
+          {% endfor %} {% endif %}
+        </ul>
+      </li>
 
       <!-- Search -->
       <form
