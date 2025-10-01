@@ -15,4 +15,11 @@ urlpatterns = [
     # 🛒 giỏ hàng
     path("cart/add/", views.add_to_cart, name="add_to_cart"),
     path("cart/update/", views.update_cart, name="update_cart"),
+
+     # Accessories
+    path("accessories/", views.accessory_list, name="accessory_list"),
+    path("accessories/<slug:slug>/", views.accessory_detail, name="accessory_detail"),
+
+    # All items (phones + accessories)
+    path("all-items/", views.all_items_list, name="all_items_list"),
 ]

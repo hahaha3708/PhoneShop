@@ -9,10 +9,8 @@
   <form method="get" class="d-flex gap-2">
     <select name="brand" class="form-select">
       <option value="">Tất cả hãng</option>
-      {% for c in categories %}
-      <option value="{{ c.slug }}" {% if request.GET.brand == c.slug %}selected{% endif %}>
-        {{ c.name }}
-      </option>
+      {% for c in phone_brands %}
+      <option value="{{ b }}" {% if request.GET.brand == b %}selected{% endif %}>{{ b }}</option>
       {% endfor %}
     </select>
     <select name="sort" class="form-select">

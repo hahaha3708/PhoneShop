@@ -19,6 +19,156 @@
 CREATE DATABASE IF NOT EXISTS `webbandienthoai` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci */;
 USE `webbandienthoai`;
 
+-- Dumping structure for bảng webbandienthoai.app_accessory
+CREATE TABLE IF NOT EXISTS `app_accessory` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `name` varchar(200) NOT NULL,
+  `slug` varchar(200) NOT NULL,
+  `brand` varchar(100) NOT NULL,
+  `price` decimal(12,0) NOT NULL,
+  `image` varchar(200) NOT NULL,
+  `specs` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL CHECK (json_valid(`specs`)),
+  `category_id` bigint(20) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `slug` (`slug`),
+  KEY `app_accessory_category_id_e2456581_fk_app_accessorycategory_id` (`category_id`),
+  CONSTRAINT `app_accessory_category_id_e2456581_fk_app_accessorycategory_id` FOREIGN KEY (`category_id`) REFERENCES `app_accessorycategory` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=56 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Đang đổ dữ liệu cho bảng webbandienthoai.app_accessory: ~27 rows (xấp xỉ)
+INSERT INTO `app_accessory` (`id`, `name`, `slug`, `brand`, `price`, `image`, `specs`, `category_id`) VALUES
+	(1, 'Ốp lưng iPhone 15 Pro MagSafe', 'op-lung-iphone-15-pro-magsafe', 'Apple', 1290000, 'https://picsum.photos/seed/op-lung-iphone-15-pro-magsafe/800/600', '{"material":"silicone","magsafe":true,"compatibility":["iPhone 15 Pro"]}', 1),
+	(2, 'Ốp lưng trong suốt Galaxy S24 Ultra', 'op-lung-trong-suot-s24u', 'Samsung', 249000, 'https://picsum.photos/seed/op-lung-trong-suot-s24u/800/600', '{"material":"TPU trong","compatibility":["Galaxy S24 Ultra"]}', 1),
+	(3, 'Ốp lưng chống sốc Pixel 8 Pro', 'op-lung-chong-soc-pixel-8-pro', 'Spigen', 390000, 'https://picsum.photos/seed/op-lung-chong-soc-pixel-8-pro/800/600', '{"material":"PC+TPU","milstd810g":true,"compatibility":["Pixel 8 Pro"]}', 1),
+	(4, 'Củ sạc nhanh 20W USB-C', 'cu-sac-20w-usbc', 'Apple', 490000, 'https://picsum.photos/seed/cu-sac-20w-usbc/800/600', '{"power":"20W","port":"USB-C"}', 2),
+	(5, 'Củ sạc nhanh 25W USB-C PD', 'cu-sac-25w-usbc-pd', 'Samsung', 390000, 'https://picsum.photos/seed/cu-sac-25w-usbc-pd/800/600', '{"power":"25W","standard":"USB-PD PPS"}', 2),
+	(6, 'Củ sạc đôi 45W (20W+25W)', 'cu-sac-doi-45w', 'Baseus', 590000, 'https://picsum.photos/seed/cu-sac-doi-45w/800/600', '{"power_total":"45W","ports":[{"type":"USB-C","w":25},{"type":"USB-A","w":20}]}', 2),
+	(7, 'Cáp USB-C to USB-C 1m', 'cap-usbc-1m', 'Anker', 190000, 'https://picsum.photos/seed/cap-usbc-1m/800/600', '{"length":"1m","standard":"USB-C 2.0","current":"3A"}', 3),
+	(8, 'Cáp USB-C to Lightning 1m MFi', 'cap-usbc-lightning-1m', 'Ugreen', 240000, 'https://picsum.photos/seed/cap-usbc-lightning-1m/800/600', '{"length":"1m","mfi":true,"fastcharge":"20W"}', 3),
+	(9, 'Cáp USB-A to USB-C 2m', 'cap-usba-usbc-2m', 'Belkin', 160000, 'https://picsum.photos/seed/cap-usba-usbc-2m/800/600', '{"length":"2m","current":"2.4A"}', 3),
+	(10, 'Tai nghe TWS ANC', 'tai-nghe-tws-anc', 'Soundcore', 1790000, 'https://picsum.photos/seed/tai-nghe-tws-anc/800/600', '{"type":"TWS","anc":true,"codec":["AAC","SBC"]}', 4),
+	(11, 'Tai nghe có dây 3.5mm', 'tai-nghe-co-day-3-5', 'Sony', 390000, 'https://picsum.photos/seed/tai-nghe-co-day-3-5/800/600', '{"type":"wired","jack":"3.5mm"}', 4),
+	(12, 'Tai nghe Bluetooth neckband', 'tai-nghe-neckband', 'Xiaomi', 590000, 'https://picsum.photos/seed/tai-nghe-neckband/800/600', '{"type":"bluetooth","battery":"20h"}', 4),
+	(13, 'Pin dự phòng 10000mAh 22.5W', 'pin10000-22w', 'Baseus', 490000, 'https://picsum.photos/seed/pin10000-22w/800/600', '{"capacity":"10000mAh","max_output":"22.5W","ports":["USB-C","USB-A"]}', 5),
+	(14, 'Pin dự phòng 20000mAh 65W', 'pin20000-65w', 'Anker', 1590000, 'https://picsum.photos/seed/pin20000-65w/800/600', '{"capacity":"20000mAh","max_output":"65W","pd":true}', 5),
+	(15, 'Dán màn hình iPhone 15 Pro (2 miếng)', 'dan-man-iphone-15-pro', 'Nillkin', 190000, 'https://picsum.photos/seed/dan-man-iphone-15-pro/800/600', '{"hardness":"9H","layers":2,"compatibility":["iPhone 15 Pro"]}', 6),
+	(16, 'Dán màn hình Galaxy S24 Ultra cong', 'dan-man-s24u', 'Whitestone', 390000, 'https://picsum.photos/seed/dan-man-s24u/800/600', '{"hardness":"9H","edge":"3D","compatibility":["Galaxy S24 Ultra"]}', 6),
+	(17, 'Đế sạc không dây 15W', 'de-sac-khong-day-15w', 'Samsung', 690000, 'https://picsum.photos/seed/de-sac-khong-day-15w/800/600', '{"wireless":"Qi","power":"15W"}', 7),
+	(18, 'Đế sạc MagSafe 3-in-1', 'de-sac-magsafe-3in1', 'Belkin', 2590000, 'https://picsum.photos/seed/de-sac-magsafe-3in1/800/600', '{"wireless":"MagSafe","devices":["iPhone","Watch","AirPods"]}', 7),
+	(19, 'Dock sạc bàn 6 cổng', 'dock-sac-6-cong', 'Ugreen', 890000, 'https://picsum.photos/seed/dock-sac-6-cong/800/600', '{"ports":["2xUSB-C","4xUSB-A"],"total_power":"100W"}', 8),
+	(20, 'Giá đỡ điện thoại để bàn', 'gia-do-ban', 'Lamicall', 220000, 'https://picsum.photos/seed/gia-do-ban/800/600', '{"material":"aluminum","angle_adjust":"0-70°"}', 9),
+	(21, 'Giá kẹp điện thoại cho ô tô', 'gia-kep-o-to', 'Baseus', 290000, 'https://picsum.photos/seed/gia-kep-o-to/800/600', '{"mount":"air-vent","rotation":"360°"}', 9),
+	(22, 'Thẻ nhớ microSD 128GB U3', 'the-nho-microsd-128-u3', 'SanDisk', 390000, 'https://picsum.photos/seed/the-nho-microsd-128-u3/800/600', '{"capacity":"128GB","speed":"U3 V30"}', 10),
+	(23, 'Thẻ nhớ microSD 256GB A2', 'the-nho-microsd-256-a2', 'Kingston', 690000, 'https://picsum.photos/seed/the-nho-microsd-256-a2/800/600', '{"capacity":"256GB","app_performance":"A2"}', 10),
+	(24, 'Bút cảm ứng capacitive', 'but-cam-ung-capacitive', 'Baseus', 240000, 'https://picsum.photos/seed/but-cam-ung-capacitive/800/600', '{"tip":"capacitive","compatibility":["iOS","Android"]}', 11),
+	(25, 'Bút cảm ứng Active Stylus', 'but-cam-ung-active', 'Zagg', 1290000, 'https://picsum.photos/seed/but-cam-ung-active/800/600', '{"tip":"active","palm_reject":true,"charging":"USB-C"}', 11),
+	(26, 'Lens góc rộng kẹp điện thoại', 'lens-goc-rong-clip', 'Apexel', 490000, 'https://picsum.photos/seed/lens-goc-rong-clip/800/600', '{"type":"wide","mount":"clip"}', 12),
+	(27, 'Gimbal chống rung 3 trục', 'gimbal-3-truc', 'Hohem', 1990000, 'https://picsum.photos/seed/gimbal-3-truc/800/600', '{"axes":3,"max_payload":"300g","battery":"10h"}', 13);
+
+-- Dumping structure for bảng webbandienthoai.app_accessorycategory
+CREATE TABLE IF NOT EXISTS `app_accessorycategory` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `name` varchar(100) NOT NULL,
+  `slug` varchar(100) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `name` (`name`),
+  UNIQUE KEY `slug` (`slug`)
+) ENGINE=InnoDB AUTO_INCREMENT=28 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Đang đổ dữ liệu cho bảng webbandienthoai.app_accessorycategory: ~13 rows (xấp xỉ)
+INSERT INTO `app_accessorycategory` (`id`, `name`, `slug`) VALUES
+	(1, 'Ốp lưng', 'op-lung'),
+	(2, 'Sạc', 'sac'),
+	(3, 'Cáp', 'cap'),
+	(4, 'Tai nghe', 'tai-nghe'),
+	(5, 'Pin dự phòng', 'pin-du-phong'),
+	(6, 'Dán màn hình', 'dan-man-hinh'),
+	(7, 'Sạc không dây', 'sac-khong-day'),
+	(8, 'Dock/Đế sạc', 'dock-sac'),
+	(9, 'Giá đỡ điện thoại', 'gia-do'),
+	(10, 'Thẻ nhớ', 'the-nho'),
+	(11, 'Bút cảm ứng', 'but-cam-ung'),
+	(12, 'Ống kính rời', 'ong-kinh'),
+	(13, 'Gimbal/Chống rung', 'gimbal');
+
+-- Dumping structure for bảng webbandienthoai.app_accessorycolor
+CREATE TABLE IF NOT EXISTS `app_accessorycolor` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `name` varchar(50) NOT NULL,
+  `price` decimal(12,0) DEFAULT NULL,
+  `accessory_id` bigint(20) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `app_accessorycolor_accessory_id_5e21d338_fk_app_accessory_id` (`accessory_id`),
+  CONSTRAINT `app_accessorycolor_accessory_id_5e21d338_fk_app_accessory_id` FOREIGN KEY (`accessory_id`) REFERENCES `app_accessory` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Đang đổ dữ liệu cho bảng webbandienthoai.app_accessorycolor: ~7 rows (xấp xỉ)
+INSERT INTO `app_accessorycolor` (`id`, `name`, `price`, `accessory_id`) VALUES
+	(1, 'Đen', NULL, 1),
+	(2, 'Xanh', NULL, 1),
+	(3, 'Trong suốt', 1390000, 1),
+	(4, 'Đen', NULL, 10),
+	(5, 'Trắng', NULL, 10),
+	(6, 'Đen', NULL, 14),
+	(7, 'Xanh đen', NULL, 14);
+
+-- Dumping structure for bảng webbandienthoai.app_accessorycompatibleproduct
+CREATE TABLE IF NOT EXISTS `app_accessorycompatibleproduct` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `accessory_id` bigint(20) NOT NULL,
+  `product_id` bigint(20) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `app_accessorycompatiblep_accessory_id_product_id_25524ff7_uniq` (`accessory_id`,`product_id`),
+  KEY `app_accessorycompati_product_id_4d5dcd6c_fk_app_produ` (`product_id`),
+  CONSTRAINT `app_accessorycompati_accessory_id_ed956265_fk_app_acces` FOREIGN KEY (`accessory_id`) REFERENCES `app_accessory` (`id`),
+  CONSTRAINT `app_accessorycompati_product_id_4d5dcd6c_fk_app_produ` FOREIGN KEY (`product_id`) REFERENCES `app_product` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Đang đổ dữ liệu cho bảng webbandienthoai.app_accessorycompatibleproduct: ~0 rows (xấp xỉ)
+
+-- Dumping structure for bảng webbandienthoai.app_accessoryvariant
+CREATE TABLE IF NOT EXISTS `app_accessoryvariant` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `price` decimal(12,0) NOT NULL,
+  `accessory_id` bigint(20) NOT NULL,
+  `color_id` bigint(20) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `app_accessoryvariant_accessory_id_588863fb_fk_app_accessory_id` (`accessory_id`),
+  KEY `app_accessoryvariant_color_id_46403bb0_fk_app_accessorycolor_id` (`color_id`),
+  CONSTRAINT `app_accessoryvariant_accessory_id_588863fb_fk_app_accessory_id` FOREIGN KEY (`accessory_id`) REFERENCES `app_accessory` (`id`),
+  CONSTRAINT `app_accessoryvariant_color_id_46403bb0_fk_app_accessorycolor_id` FOREIGN KEY (`color_id`) REFERENCES `app_accessorycolor` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Đang đổ dữ liệu cho bảng webbandienthoai.app_accessoryvariant: ~7 rows (xấp xỉ)
+INSERT INTO `app_accessoryvariant` (`id`, `price`, `accessory_id`, `color_id`) VALUES
+	(1, 1290000, 1, 1),
+	(2, 1290000, 1, 2),
+	(3, 1390000, 1, 3),
+	(4, 1790000, 10, 4),
+	(5, 1790000, 10, 5),
+	(7, 1590000, 14, 6),
+	(8, 1590000, 14, 7);
+
+-- Dumping structure for bảng webbandienthoai.app_accessory_compatible_products
+CREATE TABLE IF NOT EXISTS `app_accessory_compatible_products` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `accessory_id` bigint(20) NOT NULL,
+  `product_id` bigint(20) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uniq_accessory_product` (`accessory_id`,`product_id`),
+  KEY `product_id` (`product_id`),
+  CONSTRAINT `aacp_accessory_fk` FOREIGN KEY (`accessory_id`) REFERENCES `app_accessory` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `aacp_product_fk` FOREIGN KEY (`product_id`) REFERENCES `app_product` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Đang đổ dữ liệu cho bảng webbandienthoai.app_accessory_compatible_products: ~5 rows (xấp xỉ)
+INSERT INTO `app_accessory_compatible_products` (`id`, `accessory_id`, `product_id`) VALUES
+	(1, 1, 1),
+	(3, 2, 3),
+	(5, 3, 9),
+	(2, 15, 1),
+	(4, 16, 3);
+
 -- Dumping structure for bảng webbandienthoai.app_capacity
 CREATE TABLE IF NOT EXISTS `app_capacity` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
@@ -666,9 +816,9 @@ CREATE TABLE IF NOT EXISTS `auth_permission` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `auth_permission_content_type_id_codename_01ab375a_uniq` (`content_type_id`,`codename`),
   CONSTRAINT `auth_permission_content_type_id_2f476e4b_fk_django_co` FOREIGN KEY (`content_type_id`) REFERENCES `django_content_type` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=45 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=65 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Đang đổ dữ liệu cho bảng webbandienthoai.auth_permission: ~41 rows (xấp xỉ)
+-- Đang đổ dữ liệu cho bảng webbandienthoai.auth_permission: ~64 rows (xấp xỉ)
 INSERT INTO `auth_permission` (`id`, `name`, `content_type_id`, `codename`) VALUES
 	(1, 'Can add log entry', 1, 'add_logentry'),
 	(2, 'Can change log entry', 1, 'change_logentry'),
@@ -713,7 +863,27 @@ INSERT INTO `auth_permission` (`id`, `name`, `content_type_id`, `codename`) VALU
 	(41, 'Can add product variant', 11, 'add_productvariant'),
 	(42, 'Can change product variant', 11, 'change_productvariant'),
 	(43, 'Can delete product variant', 11, 'delete_productvariant'),
-	(44, 'Can view product variant', 11, 'view_productvariant');
+	(44, 'Can view product variant', 11, 'view_productvariant'),
+	(45, 'Can add accessory', 12, 'add_accessory'),
+	(46, 'Can change accessory', 12, 'change_accessory'),
+	(47, 'Can delete accessory', 12, 'delete_accessory'),
+	(48, 'Can view accessory', 12, 'view_accessory'),
+	(49, 'Can add accessory category', 13, 'add_accessorycategory'),
+	(50, 'Can change accessory category', 13, 'change_accessorycategory'),
+	(51, 'Can delete accessory category', 13, 'delete_accessorycategory'),
+	(52, 'Can view accessory category', 13, 'view_accessorycategory'),
+	(53, 'Can add accessory compatible product', 14, 'add_accessorycompatibleproduct'),
+	(54, 'Can change accessory compatible product', 14, 'change_accessorycompatibleproduct'),
+	(55, 'Can delete accessory compatible product', 14, 'delete_accessorycompatibleproduct'),
+	(56, 'Can view accessory compatible product', 14, 'view_accessorycompatibleproduct'),
+	(57, 'Can add accessory color', 15, 'add_accessorycolor'),
+	(58, 'Can change accessory color', 15, 'change_accessorycolor'),
+	(59, 'Can delete accessory color', 15, 'delete_accessorycolor'),
+	(60, 'Can view accessory color', 15, 'view_accessorycolor'),
+	(61, 'Can add accessory variant', 16, 'add_accessoryvariant'),
+	(62, 'Can change accessory variant', 16, 'change_accessoryvariant'),
+	(63, 'Can delete accessory variant', 16, 'delete_accessoryvariant'),
+	(64, 'Can view accessory variant', 16, 'view_accessoryvariant');
 
 -- Dumping structure for bảng webbandienthoai.django_admin_log
 CREATE TABLE IF NOT EXISTS `django_admin_log` (
@@ -748,9 +918,9 @@ CREATE TABLE IF NOT EXISTS `django_content_type` (
   `name` varchar(100) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`),
   UNIQUE KEY `django_content_type_app_label_model_76bd3d3b_uniq` (`app_label`,`model`)
-) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Đang đổ dữ liệu cho bảng webbandienthoai.django_content_type: ~11 rows (xấp xỉ)
+-- Đang đổ dữ liệu cho bảng webbandienthoai.django_content_type: ~16 rows (xấp xỉ)
 INSERT INTO `django_content_type` (`id`, `app_label`, `model`, `name`) VALUES
 	(1, 'admin', 'logentry', ''),
 	(2, 'auth', 'permission', ''),
@@ -762,7 +932,12 @@ INSERT INTO `django_content_type` (`id`, `app_label`, `model`, `name`) VALUES
 	(8, 'app', 'customuser', ''),
 	(9, 'app', 'capacity', ''),
 	(10, 'app', 'color', ''),
-	(11, 'app', 'productvariant', '');
+	(11, 'app', 'productvariant', ''),
+	(12, 'app', 'accessory', ''),
+	(13, 'app', 'accessorycategory', ''),
+	(14, 'app', 'accessorycompatibleproduct', ''),
+	(15, 'app', 'accessorycolor', ''),
+	(16, 'app', 'accessoryvariant', '');
 
 -- Dumping structure for bảng webbandienthoai.django_migrations
 CREATE TABLE IF NOT EXISTS `django_migrations` (
@@ -771,9 +946,9 @@ CREATE TABLE IF NOT EXISTS `django_migrations` (
   `name` varchar(255) NOT NULL,
   `applied` datetime(6) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Đang đổ dữ liệu cho bảng webbandienthoai.django_migrations: ~20 rows (xấp xỉ)
+-- Đang đổ dữ liệu cho bảng webbandienthoai.django_migrations: ~19 rows (xấp xỉ)
 INSERT INTO `django_migrations` (`id`, `app`, `name`, `applied`) VALUES
 	(1, 'contenttypes', '0001_initial', '2025-09-17 11:41:36.677611'),
 	(3, 'contenttypes', '0002_remove_content_type_name', '2025-09-17 12:09:58.348147'),
@@ -794,7 +969,8 @@ INSERT INTO `django_migrations` (`id`, `app`, `name`, `applied`) VALUES
 	(18, 'admin', '0002_logentry_remove_auto_add', '2025-09-17 12:11:32.478556'),
 	(19, 'admin', '0003_logentry_add_action_flag_choices', '2025-09-17 12:11:32.482924'),
 	(20, 'sessions', '0001_initial', '2025-09-17 12:11:32.485959'),
-	(21, 'app', '0002_remove_product_price_new', '2025-09-17 12:40:01.374870');
+	(21, 'app', '0002_remove_product_price_new', '2025-09-17 12:40:01.374870'),
+	(22, 'app', '0003_accessory_accessorycategory_accessorycolor_and_more', '2025-09-19 10:31:02.102200');
 
 -- Dumping structure for bảng webbandienthoai.django_session
 CREATE TABLE IF NOT EXISTS `django_session` (
@@ -805,10 +981,11 @@ CREATE TABLE IF NOT EXISTS `django_session` (
   KEY `django_session_expire_date_a5c62663` (`expire_date`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Đang đổ dữ liệu cho bảng webbandienthoai.django_session: ~2 rows (xấp xỉ)
+-- Đang đổ dữ liệu cho bảng webbandienthoai.django_session: ~3 rows (xấp xỉ)
 INSERT INTO `django_session` (`session_key`, `session_data`, `expire_date`) VALUES
 	('3bq9tqkmc7nkr4oh4kp6et846n7b79tu', '.eJxVjDkOwjAQRe_iGllexhslPWewZrzgAHKkOKkQd4dIKaD9773_YhG3tcVtlCVOmZ2ZZKffjTA9St9BvmO_zTzNfV0m4rvCDzr4dc7leTncv4OGo31rLUI1JJMTArXSSWUviiWlPDlvZLXOGBBWkIKM2QI4F6AmTWSNhqDZ-wO6wjaq:1uyOqi:EeQtdQOHuLutig5wqPSgLnt4Muoyeq0-4pPcB-ShWto', '2025-09-30 06:07:32.603183'),
-	('ad6jntora9xiy73d6np3w39dpfwxhsw7', 'eyJjYXJ0Ijp7fX0:1uyvyV:h4mSKkVmLOvCwwn-jmmdfMV8r9mpZ6NgEf4ahs9POEk', '2025-10-01 17:29:47.970310');
+	('ad6jntora9xiy73d6np3w39dpfwxhsw7', 'eyJjYXJ0Ijp7fX0:1uyvyV:h4mSKkVmLOvCwwn-jmmdfMV8r9mpZ6NgEf4ahs9POEk', '2025-10-01 17:29:47.970310'),
+	('trq5yggkjr74rq3hgr10d4w2w0w3h9ci', 'eyJjYXJ0Ijp7fX0:1uz6yg:s8mT5S3Xza_FGHJEfjPvlk8lJxOpj5eFxcVmZKrKL1E', '2025-10-02 05:14:42.128044');
 
 /*!40103 SET TIME_ZONE=IFNULL(@OLD_TIME_ZONE, 'system') */;
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;

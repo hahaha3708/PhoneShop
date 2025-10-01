@@ -1,0 +1,96 @@
+{% extends "base.html" %} {% load currency %} {% block title %}{{ acc.name }} -
+Phụ kiện{% endblock %} {% block content %}
+<div class="container my-4">
+  <div class="row g-4">
+    <div class="col-md-6 text-center">
+      <img
+        src="{{ acc.image }}"
+        alt="{{ acc.name }}"
+        class="img-fluid rounded border shadow-sm"
+      />
+    </div>
+
+    <div class="col-md-6">
+      <h3 class="mb-1">{{ acc.name }}</h3>
+      <div class="text-muted mb-2">
+        {{ acc.brand }} · {{ acc.category.name }}
+      </div>
+
+      <div
+        class="h4 text-danger fw-bold mb-3"
+        id="priceBox"
+        data-default="{{ default_price }}"
+      >
+        {{ default_price|vnd }}
+      </div>
+
+      {% if colors %}
+      <div class="mb-3">
+        <div class="fw-semibold mb-2">Màu sắc</div>
+        <div class="d-flex flex-wrap gap-2" id="colorGroup">
+          {% for c in colors %}
+          <button
+            type="button"
+            class="btn btn-outline-secondary btn-sm color-pill"
+            data-color-id="{{ c.id }}"
+          >
+            {{ c.name }}
+          </button>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+      <div class="mb-3">
+        <div class="fw-semibold mb-2">Mô tả nhanh</div>
+        <pre class="bg-light p-3 rounded small">
+{{ acc.specs|json_script:"acc_specs" }}</pre
+        >
+      </div>
+
+      <button class="btn btn-primary btn-lg">Thêm vào giỏ</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Map {color_id: price} được render từ view
+  const COLOR_PRICES = {{ color_prices|safe }};
+  const priceBox = document.getElementById('priceBox');
+  const colorGroup = document.getElementById('colorGroup');
+
+  function formatVND(x) {
+    // đơn giản: hiển thị như 1,234,567 đ (phù hợp nếu không dùng filter currency phía client)
+    return x.toLocaleString('vi-VN') + ' đ';
+  }
+
+  function setActive(btn) {
+    document.querySelectorAll('.color-pill').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+
+  if (colorGroup) {
+    colorGroup.addEventListener('click', (e) => {
+      const btn = e.target.closest('button[data-color-id]');
+      if (!btn) return;
+
+      const id = btn.getAttribute('data-color-id');
+      const price = COLOR_PRICES[id] ? parseInt(COLOR_PRICES[id]) : parseInt(priceBox.dataset.default);
+
+      priceBox.textContent = formatVND(price);
+      setActive(btn);
+    });
+
+    // auto-chọn màu đầu tiên
+    const firstBtn = colorGroup.querySelector('button[data-color-id]');
+    if (firstBtn) firstBtn.click();
+  }
+</script>
+<style>
+  .color-pill.active {
+    border-color: #0d6efd;
+    background: #0d6efd;
+    color: #fff;
+  }
+</style>
+{% endblock %}
