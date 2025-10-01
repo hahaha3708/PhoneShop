@@ -49,31 +49,7 @@
           </a>
         </li>
 
-        <!-- Hãng -->
-        {% comment %}
-        <li class="nav-item dropdown">
-          <a
-            class="nav-link dropdown-toggle"
-            href="#"
-            data-bs-toggle="dropdown"
-          >
-            Hãng
-          </a>
-          <ul class="dropdown-menu">
-            {% for c in categories %}
-            <li>
-              <a
-                class="dropdown-item"
-                href="{% url 'shop:product_list' %}?brand={{ c.slug }}"
-              >
-                {{ c.name }}
-              </a>
-            </li>
-            {% endfor %}
-          </ul>
-        </li>
-      </ul>
-      {% endcomment %}
+  
       <!-- Hãng -->
       <li class="nav-item dropdown">
         <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
@@ -81,18 +57,16 @@
         </a>
 
         <ul class="dropdown-menu">
-          {% if "/accessories" in request.path %} {# Trang phụ kiện → chỉ hãng
-          phụ kiện #} {% for b in accessory_brands %}
+          {% if "/accessories" in request.path %}  {% for b in accessory_brands %}
           <li>
             <a
               class="dropdown-item"
-              href="{% url 'shop:accessory_list' %}?brand={{ b|urlencode }}"
-            >
+              {% comment %} href="{% url 'shop:accessory_list' %}?brand={{ b|urlencode }}" {% endcomment %}
+                   href="{% url 'shop:accessory_list' %}?brand={{ b|urlencode }}{% if request.GET.cat %}&cat={{ request.GET.cat }}{% endif %}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}">
               {{ b }}
             </a>
           </li>
-          {% endfor %} {% elif "/products" in request.path %} {# Trang điện
-          thoại → chỉ hãng điện thoại #} {% for b in phone_brands %}
+          {% endfor %} {% elif "/products" in request.path %} {% for b in phone_brands %}
           <li>
             <a
               class="dropdown-item"
@@ -101,8 +75,7 @@
               {{ b }}
             </a>
           </li>
-          {% endfor %} {% else %} {# Trang home → tất cả hãng (điện thoại + phụ
-          kiện) #} {% for b in all_brands %}
+          {% endfor %} {% else %}  {% for b in all_brands %}
           <li>
             <a
               class="dropdown-item"
@@ -164,7 +137,7 @@
         </a>
         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
           <li>
-            <a class="dropdown-item" href="{% url 'logout' %}">Đăng xuất</a>
+            <a class="dropdown-item" href="{% url 'logout' %}?next=/">Đăng xuất</a>
           </li>
         </ul>
       </div>
