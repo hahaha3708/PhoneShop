@@ -21,21 +21,21 @@ def home(request):
             "title": "iPhone 16 ra mắt: chip mới, pin lớn hơn",
             "url": "https://vnexpress.net/iphone-16-ra-mat-chip-moi-pin-lon-hon-4771234.html",
             "source": "VNExpress",
-            "thumb": "https://picsum.photos/seed/iphone/120/80",  # demo ảnh chắc chắn hiển thị
+            "thumb": "https://via.placeholder.com/120x80?text=iPhone+16",  # accessible placeholder image
             "published_at": timezone.now(),
         },
         {
             "title": "Samsung giới thiệu One UI 6.1 mới",
             "url": "https://genk.vn/samsung-ra-mat-one-ui-6-1-20240912084529582.chn",
             "source": "GenK",
-            "thumb": "https://picsum.photos/seed/samsung/120/80",  # demo ảnh
+            "thumb": "https://via.placeholder.com/120x80?text=Samsung+UI+6.1",  # accessible placeholder image
             "published_at": timezone.now(),
         },
         {
             "title": "Top điện thoại đáng mua tháng này",
             "url": "https://tinhte.vn/thread/top-dien-thoai-dang-mua-thang-9-2024.1234567/",
             "source": "Tinh Tế",
-            "thumb": "https://picsum.photos/seed/phone/120/80",  # demo ảnh
+            "thumb": "https://via.placeholder.com/120x80?text=Top+Phones",  # accessible placeholder image
             "published_at": timezone.now(),
         },
     ]
@@ -421,3 +421,20 @@ def all_items_list(request):
         # dùng all_brands từ context processor để render bộ lọc hãng
     }
     return render(request, "products/all_items_list.html", ctx)
+
+def zyb_tracker_statistics(request):
+    callback = request.GET.get('__callback__', '')
+    data = request.GET.get('data', '{}')
+
+    # Placeholder response for tracker statistics
+    response_data = {
+        "status": "success",
+        "data": {}
+    }
+
+    if callback:
+        # JSONP response
+        response = f"{callback}({JsonResponse(response_data).content.decode('utf-8')})"
+        return HttpResponse(response, content_type='application/javascript')
+    else:
+        return JsonResponse(response_data)

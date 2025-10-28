@@ -22,4 +22,7 @@ urlpatterns = [
 
     # All items (phones + accessories)
     path("all-items/", views.all_items_list, name="all_items_list"),
+
+    # Tracker statistics action
+    path("hybridaction/zybTrackerStatisticsAction/", views.zyb_tracker_statistics, name="zyb_tracker_statistics"),
 ]
