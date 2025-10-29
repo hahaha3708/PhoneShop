@@ -63,11 +63,22 @@ def product_list(request):
         products = products.order_by('price')
     elif sort == 'price_desc':
         products = products.order_by('-price')
+    elif sort == 'newest':
+        products = products.order_by('-id')
+    else:
+        products = products.order_by('name')
+
+    paginator = Paginator(products, 12)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
 
     ctx = {
-        'products': products,
+        'products': page_obj,
         'categories': categories,
-        'page_obj': None,  # sau này dùng Paginator
+        'q': q,
+        'brand': brand,
+        'sort': sort,
+        'page_obj': page_obj,
     }
     return render(request, 'products/list.html', ctx)
 
@@ -236,14 +247,17 @@ def cart_view(request):
 
 
 def checkout_view(request):
-    # Giỏ hàng mẫu: lấy 2 sản phẩm đầu tiên từ database (nếu có)
-    products = list(Product.objects.all()[:2])
+    cart = request.session.get("cart", {})
     items = []
-    if len(products) > 0:
-        items.append({'id': products[0].id, 'name': products[0].name, 'price': products[0].price, 'qty': 1, 'total': products[0].price})
-    if len(products) > 1:
-        items.append({'id': products[1].id, 'name': products[1].name, 'price': products[1].price, 'qty': 1, 'total': products[1].price})
-    subtotal = sum(i['total'] for i in items)
+    subtotal = 0
+    for key, item in cart.items():
+        total = item["price"] * item["quantity"]
+        subtotal += total
+        items.append({
+            "name": item["name"],
+            "qty": item["quantity"],
+            "total": total
+        })
     shipping = 30000 if subtotal < 5000000 else 0
     total = subtotal + shipping
     return render(request, 'checkout/checkout.html', {
