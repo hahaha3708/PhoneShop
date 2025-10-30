@@ -12,6 +12,7 @@ urlpatterns = [
     path('products/<slug:slug>/', views.product_detail, name='product_detail'),
     path('cart/', views.cart_view, name='cart'),
     path('checkout/', views.checkout_view, name='checkout'),
+    path('order-success/', views.order_success, name='order_success'),
     path("api/get-price/", views.get_price, name="get_price"),
 
     # 🛒 giỏ hàng

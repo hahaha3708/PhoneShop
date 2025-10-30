@@ -266,6 +266,34 @@ def checkout_view(request):
         'shipping': shipping,
         'total': total,
     })
+
+def order_success(request):
+    if request.method == "POST":
+        # Get brands from cart before clearing
+        cart = request.session.get("cart", {})
+        brands = set()
+        for key, item in cart.items():
+            try:
+                product = Product.objects.filter(name=item["name"]).first()
+                if product:
+                    brands.add(product.brand)
+            except:
+                pass
+
+        # Process order: clear cart
+        request.session["cart"] = {}
+        request.session.modified = True
+
+        # Find similar products: same brand, limit 8
+        similar_products = Product.objects.filter(brand__in=brands).exclude(
+            name__in=[item["name"] for item in cart.values()]
+        )[:8]
+
+        return render(request, 'checkout/order_success.html', {
+            'similar_products': similar_products,
+        })
+    else:
+        return redirect('shop:checkout')
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, authenticate, logout
 from django.contrib import messages
