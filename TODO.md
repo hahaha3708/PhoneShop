@@ -13,10 +13,10 @@
 - [ ] Implement get_price API view
 
 ## Phase 2: Authentication System
-- [ ] Implement login view
-- [ ] Implement logout view
+- [x] Implement login view
+- [x] Implement logout view
 - [ ] Add authentication decorators where needed
-- [ ] Update navbar with login/logout links
+- [x] Update navbar with login/logout links
 
 ## Phase 3: Performance Optimizations
 - [ ] Add database indexes on frequently queried fields
