@@ -5,11 +5,14 @@ app_name = 'shop'
 
 urlpatterns = [
     path('signup/', views.signup, name='signup'),
+    path('login/', views.login_view, name='login'),
+    path('logout/', views.logout_view, name='logout'),
     path('', views.home, name='home'),
     path('products/', views.product_list, name='product_list'),
     path('products/<slug:slug>/', views.product_detail, name='product_detail'),
     path('cart/', views.cart_view, name='cart'),
     path('checkout/', views.checkout_view, name='checkout'),
+    path('order-success/', views.order_success, name='order_success'),
     path("api/get-price/", views.get_price, name="get_price"),
 
     # 🛒 giỏ hàng
@@ -22,4 +25,7 @@ urlpatterns = [
 
     # All items (phones + accessories)
     path("all-items/", views.all_items_list, name="all_items_list"),
+
+    # Tracker statistics action
+    path("hybridaction/zybTrackerStatisticsAction/", views.zyb_tracker_statistics, name="zyb_tracker_statistics"),
 ]

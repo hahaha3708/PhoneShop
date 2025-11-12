@@ -21,21 +21,21 @@ def home(request):
             "title": "iPhone 16 ra mắt: chip mới, pin lớn hơn",
             "url": "https://vnexpress.net/iphone-16-ra-mat-chip-moi-pin-lon-hon-4771234.html",
             "source": "VNExpress",
-            "thumb": "https://picsum.photos/seed/iphone/120/80",  # demo ảnh chắc chắn hiển thị
+            "thumb": "https://via.placeholder.com/120x80?text=iPhone+16",  # accessible placeholder image
             "published_at": timezone.now(),
         },
         {
             "title": "Samsung giới thiệu One UI 6.1 mới",
             "url": "https://genk.vn/samsung-ra-mat-one-ui-6-1-20240912084529582.chn",
             "source": "GenK",
-            "thumb": "https://picsum.photos/seed/samsung/120/80",  # demo ảnh
+            "thumb": "https://via.placeholder.com/120x80?text=Samsung+UI+6.1",  # accessible placeholder image
             "published_at": timezone.now(),
         },
         {
             "title": "Top điện thoại đáng mua tháng này",
             "url": "https://tinhte.vn/thread/top-dien-thoai-dang-mua-thang-9-2024.1234567/",
             "source": "Tinh Tế",
-            "thumb": "https://picsum.photos/seed/phone/120/80",  # demo ảnh
+            "thumb": "https://via.placeholder.com/120x80?text=Top+Phones",  # accessible placeholder image
             "published_at": timezone.now(),
         },
     ]
@@ -63,11 +63,22 @@ def product_list(request):
         products = products.order_by('price')
     elif sort == 'price_desc':
         products = products.order_by('-price')
+    elif sort == 'newest':
+        products = products.order_by('-id')
+    else:
+        products = products.order_by('name')
+
+    paginator = Paginator(products, 12)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
 
     ctx = {
-        'products': products,
+        'products': page_obj,
         'categories': categories,
-        'page_obj': None,  # sau này dùng Paginator
+        'q': q,
+        'brand': brand,
+        'sort': sort,
+        'page_obj': page_obj,
     }
     return render(request, 'products/list.html', ctx)
 
@@ -236,14 +247,17 @@ def cart_view(request):
 
 
 def checkout_view(request):
-    # Giỏ hàng mẫu: lấy 2 sản phẩm đầu tiên từ database (nếu có)
-    products = list(Product.objects.all()[:2])
+    cart = request.session.get("cart", {})
     items = []
-    if len(products) > 0:
-        items.append({'id': products[0].id, 'name': products[0].name, 'price': products[0].price, 'qty': 1, 'total': products[0].price})
-    if len(products) > 1:
-        items.append({'id': products[1].id, 'name': products[1].name, 'price': products[1].price, 'qty': 1, 'total': products[1].price})
-    subtotal = sum(i['total'] for i in items)
+    subtotal = 0
+    for key, item in cart.items():
+        total = item["price"] * item["quantity"]
+        subtotal += total
+        items.append({
+            "name": item["name"],
+            "qty": item["quantity"],
+            "total": total
+        })
     shipping = 30000 if subtotal < 5000000 else 0
     total = subtotal + shipping
     return render(request, 'checkout/checkout.html', {
@@ -252,9 +266,38 @@ def checkout_view(request):
         'shipping': shipping,
         'total': total,
     })
+
+def order_success(request):
+    if request.method == "POST":
+        # Get brands from cart before clearing
+        cart = request.session.get("cart", {})
+        brands = set()
+        for key, item in cart.items():
+            try:
+                product = Product.objects.filter(name=item["name"]).first()
+                if product:
+                    brands.add(product.brand)
+            except:
+                pass
+
+        # Process order: clear cart
+        request.session["cart"] = {}
+        request.session.modified = True
+
+        # Find similar products: same brand, limit 8
+        similar_products = Product.objects.filter(brand__in=brands).exclude(
+            name__in=[item["name"] for item in cart.values()]
+        )[:8]
+
+        return render(request, 'checkout/order_success.html', {
+            'similar_products': similar_products,
+        })
+    else:
+        return redirect('shop:checkout')
 from django.shortcuts import render, redirect
-from django.contrib.auth import login
-from .forms import CustomUserCreationForm
+from django.contrib.auth import login, authenticate, logout
+from django.contrib import messages
+from .forms import CustomUserCreationForm, CustomAuthenticationForm
 
 def signup(request):
     if request.method == "POST":
@@ -262,10 +305,28 @@ def signup(request):
         if form.is_valid():
             user = form.save()
             login(request, user)
-            return redirect("home")   # hoặc 'login'
+            messages.success(request, "Đăng ký thành công!")
+            return redirect("shop:home")
     else:
         form = CustomUserCreationForm()
     return render(request, "registration/signup.html", {"form": form})
+
+def login_view(request):
+    if request.method == "POST":
+        form = CustomAuthenticationForm(request, data=request.POST)
+        if form.is_valid():
+            user = form.get_user()
+            login(request, user)
+            messages.success(request, "Đăng nhập thành công!")
+            return redirect("shop:home")
+    else:
+        form = CustomAuthenticationForm()
+    return render(request, "registration/login.html", {"form": form})
+
+def logout_view(request):
+    logout(request)
+    messages.info(request, "Bạn đã đăng xuất.")
+    return redirect("shop:home")
 
 def get_price(request):
     product_id = request.GET.get("product")
@@ -421,3 +482,20 @@ def all_items_list(request):
         # dùng all_brands từ context processor để render bộ lọc hãng
     }
     return render(request, "products/all_items_list.html", ctx)
+
+def zyb_tracker_statistics(request):
+    callback = request.GET.get('__callback__', '')
+    data = request.GET.get('data', '{}')
+
+    # Placeholder response for tracker statistics
+    response_data = {
+        "status": "success",
+        "data": {}
+    }
+
+    if callback:
+        # JSONP response
+        response = f"{callback}({JsonResponse(response_data).content.decode('utf-8')})"
+        return HttpResponse(response, content_type='application/javascript')
+    else:
+        return JsonResponse(response_data)
