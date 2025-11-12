@@ -60,11 +60,7 @@
               <div class="card product-card h-100 border-0 shadow-sm">
                 <!-- Hình ảnh -->
                 <div class="thumb ratio ratio-1x1 position-relative">
-                  {% if it.image|slice:":4" == 'http' %}
                   <img loading="lazy" src="{{ it.image }}" alt="{{ it.name }}">
-                  {% else %}
-                  <img loading="lazy" src="{% static it.image %}" alt="{{ it.name }}">
-                  {% endif %}
                   {% if it.discount_percent %}
                     <span class="badge bg-danger position-absolute top-0 start-0 m-2">
                       -{{ it.discount_percent }}%
