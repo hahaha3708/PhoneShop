@@ -1,11 +1,9 @@
 {% extends 'base.html' %} {% load currency %} {% block title %}Thanh toán -
 PhoneShop{% endblock %} {% block content %}
-<div class="container my-4">
 <h1 class="h4 mb-3">Thanh toán</h1>
 <div class="row g-4">
   <div class="col-lg-7">
-    <form class="needs-validation" novalidate method="post" action="{% url 'shop:order_success' %}">
-      {% csrf_token %}
+    <form class="needs-validation" novalidate>
       <div class="row g-3">
         <div class="col-sm-6">
           <label class="form-label">Họ tên</label>
@@ -24,12 +22,8 @@ PhoneShop{% endblock %} {% block content %}
             class="form-control"
             placeholder="Số nhà, đường, phường/xã, quận/huyện, tỉnh/thành"
             required
-            id="address-input"
           />
           <div class="invalid-feedback">Vui lòng nhập địa chỉ.</div>
-          <div id="delivery-estimate" class="mt-2 text-muted" style="display: none;">
-            <small id="delivery-text">Thời gian giao hàng dự kiến: từ 5 - 7 ngày</small>
-          </div>
         </div>
         <div class="col-md-6">
           <label class="form-label">Phương thức thanh toán</label>
@@ -40,7 +34,6 @@ PhoneShop{% endblock %} {% block content %}
             <option>Thẻ/Ví điện tử</option>
           </select>
           <div class="invalid-feedback">Vui lòng chọn phương thức.</div>
-          <div>Thời gian giao hàng dự kiến: từ 5 - 7 ngày</div>
         </div>
       </div>
       <hr class="my-4" />
@@ -75,39 +68,4 @@ PhoneShop{% endblock %} {% block content %}
     </div>
   </div>
 </div>
-</div>
 {% endblock %}
-
-<script>
-document.getElementById('address-input').addEventListener('input', function() {
-  const addressInput = this.value.trim();
-  const deliveryEstimate = document.getElementById('delivery-estimate');
-  const deliveryText = document.getElementById('delivery-text');
-
-  if (addressInput.length > 0) {
-    // Calculate delivery date (5-7 days from now)
-    const today = new Date();
-    const minDays = 5;
-    const maxDays = 7;
-
-    const minDate = new Date(today);
-    minDate.setDate(today.getDate() + minDays);
-
-    const maxDate = new Date(today);
-    maxDate.setDate(today.getDate() + maxDays);
-
-    const formatDate = (date) => {
-      return date.toLocaleDateString('vi-VN', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric'
-      });
-    };
-
-    deliveryText.textContent = `Thời gian giao hàng dự kiến: ${formatDate(minDate)} - ${formatDate(maxDate)}`;
-    deliveryEstimate.style.display = 'block';
-  } else {
-    deliveryEstimate.style.display = 'none';
-  }
-});
-</script>
