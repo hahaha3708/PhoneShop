@@ -20,3 +20,23 @@ document.querySelectorAll(".product-card .title").forEach((el) => {
     window.scrollTo({ top: y, behavior: "instant" });
   }
 })();
+// Nhẹ nhàng: Enter để chuyển trang (UX nhỏ)
+document.addEventListener("DOMContentLoaded", function () {
+  const form = document.getElementById("gotoPageForm");
+  if (!form) return;
+
+  const pageInput = form.querySelector('input[name="page"]');
+  pageInput.addEventListener("keypress", function (e) {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      // Giữ số trang trong khoảng hợp lệ
+      let page = parseInt(pageInput.value);
+      let max = parseInt(pageInput.getAttribute("max"));
+      let min = parseInt(pageInput.getAttribute("min"));
+      if (page < min) page = min;
+      if (page > max) page = max;
+      pageInput.value = page;
+      form.submit();
+    }
+  });
+});

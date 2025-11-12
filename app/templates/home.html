@@ -83,7 +83,7 @@
       </div>
     </div>
 
-    <!-- ============ CỘT PHẢI: BẢN TIN ============ -->
+    <!--BẢN TIN  -->
     <div class="col-lg-3">
       <aside class="sticky-top" style="top: 84px">
         <!-- Tin công nghệ / Bản tin điện thoại -->
@@ -104,10 +104,12 @@
               />
               <div class="small">
                 <div class="fw-semibold text-truncate-2">{{ n.title }}</div>
+                {% comment %}
                 <div class="text-muted mt-1">
                   {{ n.source|default:"" }}{% if n.published_at %} • {{
                   n.published_at|date:"d/m" }}{% endif %}
                 </div>
+                {% endcomment %}
               </div>
             </a>
             {% empty %}
@@ -121,7 +123,7 @@
         <!-- Khuyến mãi / Banner nhỏ -->
         <div class="card shadow-sm">
           <img
-            src="https://cdn.tgdd.vn/2023/10/banner/xperia-tgdd-300x100-300x100-1.png"
+            src="static/img/bannerkhuyenmai.png"
             alt="Khuyến mãi"
             class="card-img-bottom"
           />

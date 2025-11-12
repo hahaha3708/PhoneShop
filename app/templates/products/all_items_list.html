@@ -85,26 +85,42 @@
       </div>
 
       {% if page_obj %}
-      <nav class="mt-4">
-        <ul class="pagination justify-content-center">
-          {% if page_obj.has_previous %}
-          <li class="page-item">
-            <a class="page-link"
-               href="?page={{ page_obj.previous_page_number }}&q={{ q }}&brand={{ brand }}&sort={{ sort }}">«</a>
-          </li>
-          {% endif %}
-          <li class="page-item active">
-            <span class="page-link">Trang {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
-          </li>
-          {% if page_obj.has_next %}
-          <li class="page-item">
-            <a class="page-link"
-               href="?page={{ page_obj.next_page_number }}&q={{ q }}&brand={{ brand }}&sort={{ sort }}">»</a>
-          </li>
-          {% endif %}
-        </ul>
-      </nav>
-      {% endif %}
+    <nav class="mt-4">
+     <ul class="pagination justify-content-center align-items-center">
+    {% if page_obj.has_previous %}
+    <li class="page-item">
+      <a class="page-link"
+         href="?page={{ page_obj.previous_page_number }}&q={{ q }}&brand={{ brand }}&sort={{ sort }}">«</a>
+    </li>
+    {% endif %}
+
+    <!-- Ô nhập số trang ngay trong nút xanh -->
+    <li class="page-item active">
+      <form id="gotoPageForm" method="get" class="page-form m-0">
+        <input type="number"
+               name="page"
+               value="{{ page_obj.number }}"
+               min="1"
+               max="{{ page_obj.paginator.num_pages }}"
+               class="page-input">
+        <span class="page-total">/ {{ page_obj.paginator.num_pages }}</span>
+
+        <!-- giữ các tham số filter -->
+        <input type="hidden" name="q" value="{{ q }}">
+        <input type="hidden" name="brand" value="{{ brand }}">
+        <input type="hidden" name="sort" value="{{ sort }}">
+      </form>
+    </li>
+
+    {% if page_obj.has_next %}
+    <li class="page-item">
+      <a class="page-link"
+         href="?page={{ page_obj.next_page_number }}&q={{ q }}&brand={{ brand }}&sort={{ sort }}">»</a>
+    </li>
+    {% endif %}
+  </ul>
+</nav>
+{% endif %}
     </section>
   </div>
 </div>
