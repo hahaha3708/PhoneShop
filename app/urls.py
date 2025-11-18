@@ -22,4 +22,11 @@ urlpatterns = [
 
     # All items (phones + accessories)
     path("all-items/", views.all_items_list, name="all_items_list"),
+
+    # Admin panel
+    path("admin-panel/dashboard/", views.admin_dashboard, name="admin_dashboard"),
+    path("admin-panel/products/", views.admin_products, name="admin_products"),
+    path("admin-panel/banners/", views.admin_banners, name="admin_banners"),
+    path("admin-panel/sales/", views.admin_sales, name="admin_sales"),
+    path("admin-panel/inventory/", views.admin_inventory, name="admin_inventory"),
 ]

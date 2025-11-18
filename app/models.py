@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.utils.text import slugify
+from django.conf import settings
 
 # ----- Category -----
 class Category(models.Model):
@@ -117,3 +118,61 @@ class AccessoryCompatibleProduct(models.Model):
 
     class Meta:
         unique_together = ('accessory', 'product')
+
+# ----- Banner -----
+class Banner(models.Model):
+    title = models.CharField(max_length=200, blank=True)
+    image = models.ImageField(upload_to='banners/')
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.title or f"Banner {self.id}"
+
+# ----- Order -----
+class Order(models.Model):
+    STATUS_CHOICES = [
+        ('pending', 'Chờ xử lý'),
+        ('processing', 'Đang xử lý'),
+        ('shipped', 'Đã giao'),
+        ('delivered', 'Đã nhận'),
+        ('cancelled', 'Đã hủy'),
+    ]
+
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    total_amount = models.DecimalField(max_digits=12, decimal_places=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Order {self.id} - {self.user.email}"
+
+# ----- OrderItem -----
+class OrderItem(models.Model):
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items')
+    product_variant = models.ForeignKey(ProductVariant, on_delete=models.CASCADE, null=True, blank=True)
+    accessory_variant = models.ForeignKey(AccessoryVariant, on_delete=models.CASCADE, null=True, blank=True)
+    quantity = models.PositiveIntegerField()
+    price = models.DecimalField(max_digits=12, decimal_places=0)  # Giá tại thời điểm mua
+
+    def __str__(self):
+        if self.product_variant:
+            return f"{self.product_variant.product.name} x{self.quantity}"
+        elif self.accessory_variant:
+            return f"{self.accessory_variant.accessory.name} x{self.quantity}"
+        return f"Item x{self.quantity}"
+
+# ----- Inventory -----
+class Inventory(models.Model):
+    product_variant = models.OneToOneField(ProductVariant, on_delete=models.CASCADE, null=True, blank=True)
+    accessory_variant = models.OneToOneField(AccessoryVariant, on_delete=models.CASCADE, null=True, blank=True)
+    stock_quantity = models.PositiveIntegerField(default=0)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        if self.product_variant:
+            return f"Inventory for {self.product_variant.product.name}"
+        elif self.accessory_variant:
+            return f"Inventory for {self.accessory_variant.accessory.name}"
+        return f"Inventory {self.id}"

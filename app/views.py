@@ -10,6 +10,12 @@ from .models import Accessory, AccessoryCategory, AccessoryColor, AccessoryVaria
 from itertools import chain
 from django.core.paginator import Paginator
 from django.db.models import Value, CharField, F, Q
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib import messages
+from .models import Banner, Order, OrderItem, Inventory
+from django.db.models import Sum, Count
+from django.utils import timezone
+from datetime import timedelta
 
 # def home(request):
 #     new_products = Product.objects.all().order_by('-id')[:12]  # lấy 12 sản phẩm mới nhất
@@ -17,6 +23,11 @@ from django.db.models import Value, CharField, F, Q
 from django.utils import timezone
 
 def home(request):
+    # Only redirect admin users to admin dashboard if they are explicitly accessing the home page
+    # and not coming from a login redirect
+    if request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser) and not request.GET.get('next'):
+        return redirect('shop:admin_dashboard')
+
     news_list = [
         {
             "title": "iPhone 16 ra mắt: chip mới, pin lớn hơn",
@@ -474,3 +485,111 @@ def all_items_list(request):
         # dùng all_brands từ context processor để render bộ lọc hãng
     }
     return render(request, "products/all_items_list.html", ctx)
+
+# Admin views
+def is_admin(user):
+    return user.is_staff or user.is_superuser
+
+def admin_dashboard(request):
+    if not (request.user.is_staff or request.user.is_superuser):
+        return redirect('shop:home')
+    # Tổng quan
+    total_products = Product.objects.count()
+    total_accessories = Accessory.objects.count()
+    total_orders = Order.objects.count()
+    total_revenue = Order.objects.filter(status='delivered').aggregate(Sum('total_amount'))['total_amount__sum'] or 0
+
+    # Đơn hàng gần đây
+    recent_orders = Order.objects.select_related('user').order_by('-created_at')[:10]
+
+    # Sản phẩm bán chạy (dựa trên OrderItem)
+    top_products = OrderItem.objects.values('product_variant__product__name').annotate(
+        total_sold=Sum('quantity')
+    ).order_by('-total_sold')[:5]
+
+    ctx = {
+        'total_products': total_products,
+        'total_accessories': total_accessories,
+        'total_orders': total_orders,
+        'total_revenue': total_revenue,
+        'recent_orders': recent_orders,
+        'top_products': top_products,
+    }
+    return render(request, 'admin/dashboard.html', ctx)
+
+@login_required
+def admin_products(request):
+    if not (request.user.is_staff or request.user.is_superuser):
+        return redirect('home')
+    products = Product.objects.all().order_by('-id')
+    sort = request.GET.get('sort')
+    if sort == 'name':
+        products = products.order_by('name')
+    elif sort == 'price':
+        products = products.order_by('price')
+    elif sort == 'brand':
+        products = products.order_by('brand')
+
+    ctx = {
+        'products': products,
+        'sort': sort,
+    }
+    return render(request, 'admin/products.html', ctx)
+
+@login_required
+def admin_banners(request):
+    if not (request.user.is_staff or request.user.is_superuser):
+        return redirect('home')
+    banners = Banner.objects.all().order_by('-created_at')
+    if request.method == 'POST':
+        title = request.POST.get('title')
+        image = request.FILES.get('image')
+        is_active = request.POST.get('is_active') == 'on'
+        Banner.objects.create(title=title, image=image, is_active=is_active)
+        messages.success(request, 'Banner đã được thêm.')
+        return redirect('admin_banners')
+
+    ctx = {
+        'banners': banners,
+    }
+    return render(request, 'admin/banners.html', ctx)
+
+@login_required
+def admin_sales(request):
+    if not (request.user.is_staff or request.user.is_superuser):
+        return redirect('home')
+    # Thống kê bán hàng
+    period = request.GET.get('period', '30')  # ngày
+    days = int(period)
+    start_date = timezone.now() - timedelta(days=days)
+
+    orders = Order.objects.filter(created_at__gte=start_date)
+    total_sales = orders.filter(status='delivered').aggregate(Sum('total_amount'))['total_amount__sum'] or 0
+    total_orders = orders.count()
+
+    # Doanh thu theo ngày
+    sales_data = orders.filter(status='delivered').extra(
+        select={'date': 'DATE(created_at)'}
+    ).values('date').annotate(total=Sum('total_amount')).order_by('date')
+
+    ctx = {
+        'total_sales': total_sales,
+        'total_orders': total_orders,
+        'sales_data': sales_data,
+        'period': period,
+    }
+    return render(request, 'admin/sales.html', ctx)
+
+@login_required
+def admin_inventory(request):
+    if not (request.user.is_staff or request.user.is_superuser):
+        return redirect('home')
+    # Hiển thị tồn kho
+    product_inventory = Inventory.objects.filter(product_variant__isnull=False).select_related('product_variant__product')
+    accessory_inventory = Inventory.objects.filter(accessory_variant__isnull=False).select_related('accessory_variant__accessory')
+
+    ctx = {
+        'product_inventory': product_inventory,
+        'accessory_inventory': accessory_inventory,
+    }
+    return render(request, 'admin/inventory.html', ctx)

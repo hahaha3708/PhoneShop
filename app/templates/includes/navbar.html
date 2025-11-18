@@ -136,8 +136,15 @@
           <i class="bi bi-person-circle"></i> {{ user.email }}
         </a>
         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
+          {% if user.is_staff or user.is_superuser %}
+          <li><a class="dropdown-item" href="{% url 'shop:admin_dashboard' %}">Admin Panel</a></li>
+          {% endif %}
           <li>
-            <a class="dropdown-item" href="{% url 'logout' %}?next=/">Đăng xuất</a>
+            <form method="post" action="{% url 'logout' %}">
+              {% csrf_token %}
+              <input type="hidden" name="next" value="{% url 'login' %}" />
+              <button type="submit" class="dropdown-item">Đăng xuất</button>
+            </form>
           </li>
         </ul>
       </div>

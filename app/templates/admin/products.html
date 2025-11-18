@@ -1,0 +1,88 @@
+{% extends 'admin/base.html' %}
+
+{% block page_title %}Quản lý sản phẩm{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h4>Danh sách sản phẩm</h4>
+    <a href="{% url 'admin:product_add' %}" class="btn btn-primary">Thêm sản phẩm</a>
+</div>
+
+<div class="mb-3">
+    <form method="get" class="d-flex">
+        <select name="sort" class="form-select me-2" style="width: auto;">
+            <option value="">Sắp xếp theo</option>
+            <option value="name" {% if sort == 'name' %}selected{% endif %}>Tên</option>
+            <option value="price" {% if sort == 'price' %}selected{% endif %}>Giá</option>
+            <option value="brand" {% if sort == 'brand' %}selected{% endif %}>Hãng</option>
+        </select>
+        <button type="submit" class="btn btn-outline-secondary">Sắp xếp</button>
+    </form>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-striped table-hover">
+        <thead class="table-dark">
+            <tr>
+                <th>ID</th>
+                <th>Hình ảnh</th>
+                <th>Tên sản phẩm</th>
+                <th>Hãng</th>
+                <th>Giá</th>
+                <th>Thao tác</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for product in products %}
+            <tr>
+                <td>{{ product.id }}</td>
+                <td>
+                    {% if product.image %}
+                        <img src="{{ product.image }}" alt="{{ product.name }}" style="width: 50px; height: 50px; object-fit: cover;">
+                    {% else %}
+                        <span class="text-muted">Không có ảnh</span>
+                    {% endif %}
+                </td>
+                <td>{{ product.name }}</td>
+                <td>{{ product.brand }}</td>
+                <td>{{ product.price|floatformat:0|intcomma }} VND</td>
+                <td>
+                    <a href="{% url 'admin:product_change' product.id %}" class="btn btn-sm btn-outline-primary">Sửa</a>
+                    <a href="{% url 'admin:product_delete' product.id %}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Bạn có chắc muốn xóa?')">Xóa</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6" class="text-center">Chưa có sản phẩm nào</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% if products.has_other_pages %}
+<div class="d-flex justify-content-center">
+    <nav>
+        <ul class="pagination">
+            {% if products.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ products.previous_page_number }}{% if sort %}&sort={{ sort }}{% endif %}">Trước</a>
+                </li>
+            {% endif %}
+
+            {% for num in products.paginator.page_range %}
+                <li class="page-item {% if num == products.number %}active{% endif %}">
+                    <a class="page-link" href="?page={{ num }}{% if sort %}&sort={{ sort }}{% endif %}">{{ num }}</a>
+                </li>
+            {% endfor %}
+
+            {% if products.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ products.next_page_number }}{% if sort %}&sort={{ sort }}{% endif %}">Sau</a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+</div>
+{% endif %}
+{% endblock %}
