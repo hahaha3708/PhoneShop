@@ -1,11 +1,12 @@
 {% extends 'admin/base.html' %}
+{% load humanize %}
 
 {% block page_title %}Quản lý sản phẩm{% endblock %}
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h4>Danh sách sản phẩm</h4>
-    <a href="{% url 'admin:product_add' %}" class="btn btn-primary">Thêm sản phẩm</a>
+    <a href="{% url 'shop:admin_product_add' %}" class="btn btn-primary">Thêm sản phẩm</a>
 </div>
 
 <div class="mb-3">
@@ -47,8 +48,8 @@
                 <td>{{ product.brand }}</td>
                 <td>{{ product.price|floatformat:0|intcomma }} VND</td>
                 <td>
-                    <a href="{% url 'admin:product_change' product.id %}" class="btn btn-sm btn-outline-primary">Sửa</a>
-                    <a href="{% url 'admin:product_delete' product.id %}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Bạn có chắc muốn xóa?')">Xóa</a>
+                    <a href="{% url 'shop:admin_product_edit' product.id %}" class="btn btn-sm btn-outline-primary">Sửa</a>
+                    <a href="{% url 'shop:admin_product_delete' product.id %}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Bạn có chắc muốn xóa?')">Xóa</a>
                 </td>
             </tr>
             {% empty %}

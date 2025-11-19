@@ -70,7 +70,11 @@
                     <h2>{% block page_title %}Admin{% endblock %}</h2>
                     <div>
                         <span class="text-muted">Xin chào, {{ user.email }}</span>
-                        <a href="{% url 'logout' %}" class="btn btn-outline-danger btn-sm ms-2">Đăng xuất</a>
+                        <form method="post" action="{% url 'logout' %}" class="d-inline">
+                            {% csrf_token %}
+                            <input type="hidden" name="next" value="{% url 'shop:home' %}" />
+                            <button type="submit" class="btn btn-outline-danger btn-sm ms-2">Đăng xuất</button>
+                        </form>
                     </div>
                 </div>
 

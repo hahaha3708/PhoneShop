@@ -520,8 +520,8 @@ def admin_dashboard(request):
 @login_required
 def admin_products(request):
     if not (request.user.is_staff or request.user.is_superuser):
-        return redirect('home')
-    products = Product.objects.all().order_by('-id')
+        return redirect('shop:home')
+    products = Product.objects.all()
     sort = request.GET.get('sort')
     if sort == 'name':
         products = products.order_by('name')
@@ -529,12 +529,79 @@ def admin_products(request):
         products = products.order_by('price')
     elif sort == 'brand':
         products = products.order_by('brand')
+    else:
+        products = products.order_by('-id')
+
+    paginator = Paginator(products, 20)  # 20 products per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
 
     ctx = {
-        'products': products,
+        'products': page_obj,
         'sort': sort,
     }
     return render(request, 'admin/products.html', ctx)
+
+@login_required
+def admin_product_add(request):
+    if not (request.user.is_staff or request.user.is_superuser):
+        return redirect('shop:home')
+
+    if request.method == 'POST':
+        form = ProductForm(request.POST)
+        if form.is_valid():
+            product = form.save()
+            messages.success(request, f'Sản phẩm "{product.name}" đã được thêm thành công.')
+            return redirect('shop:admin_products')
+    else:
+        form = ProductForm()
+
+    ctx = {
+        'form': form,
+        'title': 'Thêm sản phẩm mới',
+    }
+    return render(request, 'admin/product_form.html', ctx)
+
+@login_required
+def admin_product_edit(request, product_id):
+    if not (request.user.is_staff or request.user.is_superuser):
+        return redirect('shop:home')
+
+    product = get_object_or_404(Product, id=product_id)
+
+    if request.method == 'POST':
+        form = ProductForm(request.POST, instance=product)
+        if form.is_valid():
+            product = form.save()
+            messages.success(request, f'Sản phẩm "{product.name}" đã được cập nhật thành công.')
+            return redirect('shop:admin_products')
+    else:
+        form = ProductForm(instance=product)
+
+    ctx = {
+        'form': form,
+        'product': product,
+        'title': f'Chỉnh sửa sản phẩm: {product.name}',
+    }
+    return render(request, 'admin/product_form.html', ctx)
+
+@login_required
+def admin_product_delete(request, product_id):
+    if not (request.user.is_staff or request.user.is_superuser):
+        return redirect('shop:home')
+
+    product = get_object_or_404(Product, id=product_id)
+
+    if request.method == 'POST':
+        product_name = product.name
+        product.delete()
+        messages.success(request, f'Sản phẩm "{product_name}" đã được xóa thành công.')
+        return redirect('shop:admin_products')
+
+    ctx = {
+        'product': product,
+    }
+    return render(request, 'admin/product_confirm_delete.html', ctx)
 
 @login_required
 def admin_banners(request):

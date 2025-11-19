@@ -26,6 +26,9 @@ urlpatterns = [
     # Admin panel
     path("admin-panel/dashboard/", views.admin_dashboard, name="admin_dashboard"),
     path("admin-panel/products/", views.admin_products, name="admin_products"),
+    path("admin-panel/products/add/", views.admin_product_add, name="admin_product_add"),
+    path("admin-panel/products/<int:product_id>/edit/", views.admin_product_edit, name="admin_product_edit"),
+    path("admin-panel/products/<int:product_id>/delete/", views.admin_product_delete, name="admin_product_delete"),
     path("admin-panel/banners/", views.admin_banners, name="admin_banners"),
     path("admin-panel/sales/", views.admin_sales, name="admin_sales"),
     path("admin-panel/inventory/", views.admin_inventory, name="admin_inventory"),
