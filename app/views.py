@@ -16,6 +16,7 @@ from .models import Banner, Order, OrderItem, Inventory
 from django.db.models import Sum, Count
 from django.utils import timezone
 from datetime import timedelta
+from .forms import ProductForm
 
 # def home(request):
 #     new_products = Product.objects.all().order_by('-id')[:12]  # lấy 12 sản phẩm mới nhất
