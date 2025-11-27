@@ -29,7 +29,10 @@ urlpatterns = [
     path("admin-panel/products/add/", views.admin_product_add, name="admin_product_add"),
     path("admin-panel/products/<int:product_id>/edit/", views.admin_product_edit, name="admin_product_edit"),
     path("admin-panel/products/<int:product_id>/delete/", views.admin_product_delete, name="admin_product_delete"),
-    path("admin-panel/banners/", views.admin_banners, name="admin_banners"),
+    path("admin-panel/accessories/", views.admin_accessories, name="admin_accessories"),
+    path("admin-panel/accessories/add/", views.admin_accessory_add, name="admin_accessory_add"),
+    path("admin-panel/accessories/<int:accessory_id>/edit/", views.admin_accessory_edit, name="admin_accessory_edit"),
+    path("admin-panel/accessories/<int:accessory_id>/delete/", views.admin_accessory_delete, name="admin_accessory_delete"),
     path("admin-panel/sales/", views.admin_sales, name="admin_sales"),
     path("admin-panel/inventory/", views.admin_inventory, name="admin_inventory"),
 ]

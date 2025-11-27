@@ -12,7 +12,7 @@ from django.core.paginator import Paginator
 from django.db.models import Value, CharField, F, Q
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
-from .models import Banner, Order, OrderItem, Inventory
+from .models import Order, OrderItem, Inventory
 from django.db.models import Sum, Count
 from django.utils import timezone
 from datetime import timedelta
@@ -53,7 +53,8 @@ def home(request):
         },
     ]
     ctx = {
-        "new_products":  Product.objects.all().order_by('-id')[:12],
+        "new_products":  Product.objects.all().order_by('name', '-id').distinct('name')[:12],
+        "featured_accessories": Accessory.objects.all().annotate(min_variant_price=Min("accessoryvariant__price")).order_by('-id')[:8],
         "news_list": news_list,
     }
     return render(request, "home.html", ctx)
@@ -605,22 +606,90 @@ def admin_product_delete(request, product_id):
     return render(request, 'admin/product_confirm_delete.html', ctx)
 
 @login_required
-def admin_banners(request):
+def admin_accessories(request):
     if not (request.user.is_staff or request.user.is_superuser):
-        return redirect('home')
-    banners = Banner.objects.all().order_by('-created_at')
-    if request.method == 'POST':
-        title = request.POST.get('title')
-        image = request.FILES.get('image')
-        is_active = request.POST.get('is_active') == 'on'
-        Banner.objects.create(title=title, image=image, is_active=is_active)
-        messages.success(request, 'Banner đã được thêm.')
-        return redirect('admin_banners')
+        return redirect('shop:home')
+    accessories = Accessory.objects.all()
+    sort = request.GET.get('sort')
+    if sort == 'name':
+        accessories = accessories.order_by('name')
+    elif sort == 'price':
+        accessories = accessories.order_by('price')
+    elif sort == 'brand':
+        accessories = accessories.order_by('brand')
+    else:
+        accessories = accessories.order_by('-id')
+
+    paginator = Paginator(accessories, 20)  # 20 accessories per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
 
     ctx = {
-        'banners': banners,
+        'accessories': page_obj,
+        'sort': sort,
     }
-    return render(request, 'admin/banners.html', ctx)
+    return render(request, 'admin/accessories.html', ctx)
+
+@login_required
+def admin_accessory_add(request):
+    if not (request.user.is_staff or request.user.is_superuser):
+        return redirect('shop:home')
+
+    if request.method == 'POST':
+        form = AccessoryForm(request.POST)
+        if form.is_valid():
+            accessory = form.save()
+            messages.success(request, f'Phụ kiện "{accessory.name}" đã được thêm thành công.')
+            return redirect('shop:admin_accessories')
+    else:
+        form = AccessoryForm()
+
+    ctx = {
+        'form': form,
+        'title': 'Thêm phụ kiện mới',
+    }
+    return render(request, 'admin/accessory_form.html', ctx)
+
+@login_required
+def admin_accessory_edit(request, accessory_id):
+    if not (request.user.is_staff or request.user.is_superuser):
+        return redirect('shop:home')
+
+    accessory = get_object_or_404(Accessory, id=accessory_id)
+
+    if request.method == 'POST':
+        form = AccessoryForm(request.POST, instance=accessory)
+        if form.is_valid():
+            accessory = form.save()
+            messages.success(request, f'Phụ kiện "{accessory.name}" đã được cập nhật thành công.')
+            return redirect('shop:admin_accessories')
+    else:
+        form = AccessoryForm(instance=accessory)
+
+    ctx = {
+        'form': form,
+        'accessory': accessory,
+        'title': f'Chỉnh sửa phụ kiện: {accessory.name}',
+    }
+    return render(request, 'admin/accessory_form.html', ctx)
+
+@login_required
+def admin_accessory_delete(request, accessory_id):
+    if not (request.user.is_staff or request.user.is_superuser):
+        return redirect('shop:home')
+
+    accessory = get_object_or_404(Accessory, id=accessory_id)
+
+    if request.method == 'POST':
+        accessory_name = accessory.name
+        accessory.delete()
+        messages.success(request, f'Phụ kiện "{accessory_name}" đã được xóa thành công.')
+        return redirect('shop:admin_accessories')
+
+    ctx = {
+        'accessory': accessory,
+    }
+    return render(request, 'admin/accessory_confirm_delete.html', ctx)
 
 @login_required
 def admin_sales(request):

@@ -11,7 +11,7 @@ class CustomAuthenticationForm(AuthenticationForm):
     username = forms.EmailField(label="Email")
 
 from django import forms
-from .models import Product, Category
+from .models import Product, Category, Accessory, AccessoryCategory
 
 class ProductForm(forms.ModelForm):
     category = forms.ModelChoiceField(
@@ -159,3 +159,48 @@ class ProductForm(forms.ModelForm):
         if commit:
             instance.save()
         return instance
+
+class AccessoryForm(forms.ModelForm):
+    category = forms.ModelChoiceField(
+        queryset=AccessoryCategory.objects.all(),
+        empty_label="Chọn danh mục",
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+
+    # Thông số kỹ thuật cho phụ kiện
+    specs = forms.CharField(
+        max_length=1000,
+        required=False,
+        widget=forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Thông số kỹ thuật (vd: Kích thước: 10x5cm, Trọng lượng: 50g, Chất liệu: Nhựa)', 'rows': 3}),
+        label="Thông số kỹ thuật"
+    )
+
+    class Meta:
+        model = Accessory
+        fields = ['category', 'name', 'slug', 'brand', 'price', 'image', 'specs']
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Tên phụ kiện'}),
+            'slug': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Slug (tự động tạo nếu để trống)'}),
+            'brand': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Hãng sản xuất'}),
+            'price': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Giá phụ kiện'}),
+            'image': forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'URL hình ảnh'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Tự động tạo slug từ name nếu chưa có
+        if self.instance and self.instance.pk:
+            self.fields['slug'].required = False
+
+    def clean_slug(self):
+        slug = self.cleaned_data.get('slug')
+        if not slug and self.cleaned_data.get('name'):
+            from django.utils.text import slugify
+            slug = slugify(self.cleaned_data['name'])
+            # Đảm bảo slug unique
+            original_slug = slug
+            counter = 1
+            while Accessory.objects.filter(slug=slug).exclude(pk=self.instance.pk if self.instance else None).exists():
+                slug = f"{original_slug}-{counter}"
+                counter += 1
+        return slug
