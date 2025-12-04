@@ -1,5 +1,8 @@
 from django.contrib.auth.forms import UserCreationForm
 from django.shortcuts import render, redirect
+from django.contrib.auth import login
+from django.contrib import messages
+from .forms import CustomUserCreationForm, ProductForm
 from django.http import HttpResponse
 from .models import Product, Category
 from django.http import JsonResponse
@@ -16,7 +19,15 @@ from .models import Order, OrderItem, Inventory
 from django.db.models import Sum, Count
 from django.utils import timezone
 from datetime import timedelta
-from .forms import ProductForm
+import random
+import string
+from django.core.mail import send_mail
+from django.conf import settings
+from django.contrib.auth.hashers import make_password
+from django.contrib.auth import get_user_model
+
+# Thêm dòng này
+User = get_user_model()
 
 # def home(request):
 #     new_products = Product.objects.all().order_by('-id')[:12]  # lấy 12 sản phẩm mới nhất
@@ -34,26 +45,26 @@ def home(request):
             "title": "iPhone 16 ra mắt: chip mới, pin lớn hơn",
             "url": "https://vnexpress.net/iphone-16-ra-mat-chip-moi-pin-lon-hon-4771234.html",
             "source": "VNExpress",
-            "thumb": "https://picsum.photos/seed/iphone/120/80",  # demo ảnh chắc chắn hiển thị
+            "thumb": "https://picsum.photos/seed/iphone/120/80",
             "published_at": timezone.now(),
         },
         {
             "title": "Samsung giới thiệu One UI 6.1 mới",
             "url": "https://genk.vn/samsung-ra-mat-one-ui-6-1-20240912084529582.chn",
             "source": "GenK",
-            "thumb": "https://picsum.photos/seed/samsung/120/80",  # demo ảnh
+            "thumb": "https://picsum.photos/seed/samsung/120/80",
             "published_at": timezone.now(),
         },
         {
             "title": "Top điện thoại đáng mua tháng này",
             "url": "https://tinhte.vn/thread/top-dien-thoai-dang-mua-thang-9-2024.1234567/",
             "source": "Tinh Tế",
-            "thumb": "https://picsum.photos/seed/phone/120/80",  # demo ảnh
+            "thumb": "https://picsum.photos/seed/phone/120/80",
             "published_at": timezone.now(),
         },
     ]
     ctx = {
-        "new_products":  Product.objects.all().order_by('name', '-id').distinct('name')[:12],
+        "new_products": Product.objects.all().order_by('name', '-id')[:12],
         "featured_accessories": Accessory.objects.all().annotate(min_variant_price=Min("accessoryvariant__price")).order_by('-id')[:8],
         "news_list": news_list,
     }
@@ -268,15 +279,24 @@ def checkout_view(request):
     })
 from django.shortcuts import render, redirect
 from django.contrib.auth import login
+from django.contrib import messages
 from .forms import CustomUserCreationForm
 
 def signup(request):
     if request.method == "POST":
         form = CustomUserCreationForm(request.POST)
         if form.is_valid():
-            user = form.save()
-            login(request, user)
-            return redirect("home")   # hoặc 'login'
+            try:
+                user = form.save()
+                login(request, user)
+                messages.success(request, 'Đăng ký tài khoản thành công! Chào mừng bạn đến với PhoneShop.')
+                return redirect('shop:home')
+            except Exception as e:
+                messages.error(request, f'Có lỗi xảy ra: {str(e)}')
+        else:
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f'{error}')
     else:
         form = CustomUserCreationForm()
     return render(request, "registration/signup.html", {"form": form})
@@ -730,3 +750,103 @@ def admin_inventory(request):
         'accessory_inventory': accessory_inventory,
     }
     return render(request, 'admin/inventory.html', ctx)
+def forgot_password(request):
+    if request.method == "POST":
+        email = request.POST.get('email')
+        try:
+            user = User.objects.get(email=email)
+            # Tạo mã OTP 6 số
+            otp_code = ''.join(random.choices(string.digits, k=6))
+            
+            # Lưu OTP vào session với thời gian hết hạn
+            request.session['otp_code'] = otp_code
+            request.session['otp_email'] = email
+            request.session['otp_created'] = timezone.now().isoformat()
+            
+            # Gửi email OTP
+            subject = 'Mã xác thực đặt lại mật khẩu - PhoneShop'
+            message = f'''
+Chào bạn,
+
+Bạn đã yêu cầu đặt lại mật khẩu cho tài khoản PhoneShop.
+
+Mã xác thực của bạn là: {otp_code}
+
+Mã này có hiệu lực trong 10 phút. Vui lòng không chia sẻ mã này với bất kỳ ai.
+
+Nếu bạn không yêu cầu đặt lại mật khẩu, vui lòng bỏ qua email này.
+
+Trân trọng,
+Đội ngũ PhoneShop
+            '''
+            
+            send_mail(
+                subject,
+                message,
+                settings.DEFAULT_FROM_EMAIL,
+                [email],
+                fail_silently=False,
+            )
+            
+            messages.success(request, f'Mã OTP đã được gửi đến email {email}')
+            return redirect('shop:verify_otp')
+            
+        except User.DoesNotExist:
+            messages.error(request, 'Email này không tồn tại trong hệ thống.')
+    
+    return render(request, 'registration/forgot_password.html')
+
+def verify_otp(request):
+    if request.method == "POST":
+        otp_input = request.POST.get('otp_code')
+        new_password = request.POST.get('new_password')
+        confirm_password = request.POST.get('confirm_password')
+        
+        # Kiểm tra OTP từ session
+        stored_otp = request.session.get('otp_code')
+        stored_email = request.session.get('otp_email')
+        otp_created = request.session.get('otp_created')
+        
+        if not stored_otp or not stored_email:
+            messages.error(request, 'Phiên làm việc đã hết hạn. Vui lòng thử lại.')
+            return redirect('shop:forgot_password')
+        
+        # Kiểm tra thời gian hết hạn (10 phút)
+        created_time = timezone.datetime.fromisoformat(otp_created)
+        if timezone.now() - created_time > timezone.timedelta(minutes=10):
+            messages.error(request, 'Mã OTP đã hết hạn. Vui lòng yêu cầu mã mới.')
+            return redirect('shop:forgot_password')
+        
+        # Kiểm tra OTP
+        if otp_input != stored_otp:
+            messages.error(request, 'Mã OTP không chính xác.')
+            return render(request, 'registration/verify_otp.html')
+        
+        # Kiểm tra mật khẩu mới
+        if new_password != confirm_password:
+            messages.error(request, 'Mật khẩu xác nhận không khớp.')
+            return render(request, 'registration/verify_otp.html')
+        
+        if len(new_password) < 8:
+            messages.error(request, 'Mật khẩu phải có ít nhất 8 ký tự.')
+            return render(request, 'registration/verify_otp.html')
+        
+        # Cập nhật mật khẩu mới
+        try:
+            user = User.objects.get(email=stored_email)
+            user.set_password(new_password)
+            user.save()
+            
+            # Xóa OTP khỏi session
+            del request.session['otp_code']
+            del request.session['otp_email'] 
+            del request.session['otp_created']
+            
+            messages.success(request, 'Đặt lại mật khẩu thành công! Bạn có thể đăng nhập bằng mật khẩu mới.')
+            return redirect('shop:login')
+            
+        except User.DoesNotExist:
+            messages.error(request, 'Có lỗi xảy ra. Vui lòng thử lại.')
+            return redirect('shop:forgot_password')
+    
+    return render(request, 'registration/verify_otp.html')

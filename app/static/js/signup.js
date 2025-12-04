@@ -13,15 +13,44 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
-function togglePassword(fieldId, el) {
-  const input = document.getElementById(fieldId);
-  const icon = el.querySelector("img");
+function togglePassword(fieldId, element) {
+  const passwordField = document.getElementById(fieldId);
+  const img = element.querySelector("img");
 
-  if (input.type === "password") {
-    input.type = "text";
-    icon.src = "/static/img/show.png";
+  if (passwordField.type === "password") {
+    passwordField.type = "text";
+    img.src = "/static/img/show.png"; // icon mắt mở
   } else {
-    input.type = "password";
-    icon.src = "/static/img/hide.png";
+    passwordField.type = "password";
+    img.src = "/static/img/hide.png"; // icon mắt đóng
   }
 }
+
+// Validation form
+document.getElementById("signupForm").addEventListener("submit", function (e) {
+  const password1 = document.getElementById("id_password1").value;
+  const password2 = document.getElementById("id_password2").value;
+  const email = document.getElementById("id_email").value;
+
+  // Kiểm tra mật khẩu khớp
+  if (password1 !== password2) {
+    e.preventDefault();
+    alert("Mật khẩu nhập lại không khớp!");
+    return;
+  }
+
+  // Kiểm tra độ dài mật khẩu
+  if (password1.length < 8) {
+    e.preventDefault();
+    alert("Mật khẩu phải có ít nhất 8 ký tự!");
+    return;
+  }
+
+  // Kiểm tra email format
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (email && !emailRegex.test(email)) {
+    e.preventDefault();
+    alert("Email không đúng định dạng!");
+    return;
+  }
+});

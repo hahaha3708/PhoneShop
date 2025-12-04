@@ -12,6 +12,11 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 from pathlib import Path
 import os
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -74,7 +79,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'webbandienthoai.wsgi.application'
-AUTH_USER_MODEL = "app.CustomUser"
+AUTH_USER_MODEL = 'app.CustomUser'
 
 
 # Database
@@ -85,11 +90,12 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'webbandienthoai',
         'USER': 'root',
-        'PASSWORD': '123456789',
+        'PASSWORD': '',
         'HOST': '127.0.0.1',
-        'PORT': '3306',
+        'PORT': '3307',
         'OPTIONS': {
             'charset': 'utf8mb4',
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
         },
     }
 }
@@ -101,9 +107,15 @@ DATABASES = {
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        'OPTIONS': {
+            'user_attributes': ('username', 'email', 'first_name', 'last_name'),
+        }
     },
     {
         'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        'OPTIONS': {
+            'min_length': 8,
+        }
     },
     {
         'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
@@ -117,9 +129,8 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
-
-TIME_ZONE = 'UTC'
+LANGUAGE_CODE = 'vi'  # Thay từ 'en-us' sang 'vi'
+TIME_ZONE = 'Asia/Ho_Chi_Minh'  # Thay từ 'UTC' sang múi giờ Việt Nam
 
 USE_I18N = True
 
@@ -147,4 +158,33 @@ messages.ERROR: 'danger',
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-LOGIN_REDIRECT_URL = 'shop:home'
+
+# Custom User Model
+AUTH_USER_MODEL = 'app.CustomUser'
+
+# Authentication
+LOGIN_URL = '/login/'
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'
+
+# Email settings với fix cho Python 3.13
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True     # Chỉ dùng TLS → cổng 587
+EMAIL_USE_SSL = False    # Không bật SSL cùng lúc
+EMAIL_HOST_USER = "trandacdaiviet@gmail.com"
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")  # APP PASSWORD
+DEFAULT_FROM_EMAIL = 'PhoneShop <trandacdaiviet@gmail.com>'
+EMAIL_TIMEOUT = 60
+
+# Hoặc fallback về console nếu vẫn lỗi
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+# Session settings for OTP
+SESSION_COOKIE_AGE = 1800  # 30 phút
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+SESSION_SAVE_EVERY_REQUEST = True
+
+# Security settings
+CSRF_TRUSTED_ORIGINS = ['http://127.0.0.1:8000', 'http://localhost:8000']

@@ -50,6 +50,8 @@ class CustomUserManager(BaseUserManager):
 class CustomUser(AbstractUser):
     username = None  # bỏ username, chỉ dùng email
     email = models.EmailField(unique=True)
+    phone = models.CharField(max_length=15, blank=True, null=True)
+    date_of_birth = models.DateField(blank=True, null=True)
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []  # khi tạo superuser chỉ cần email + password

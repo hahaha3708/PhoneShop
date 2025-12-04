@@ -1,0 +1,130 @@
+{% extends "base.html" %} {% load static %} {% block title %}Xác thực OTP -
+PhoneShop{% endblock %} {% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/login.css' %}" />
+{% endblock %} {% block content %}
+<div class="login-container py-5">
+  <div
+    class="card shadow-lg p-4 rounded-4"
+    style="max-width: 450px; margin: auto"
+  >
+    <!-- Tiêu đề -->
+    <div class="text-center mb-4">
+      <i class="bi bi-shield-check text-success fs-1 mb-2"></i>
+      <h2 class="text-success fw-bold">Xác thực OTP</h2>
+      <p class="text-muted">Nhập mã 6 số đã được gửi đến email của bạn</p>
+    </div>
+
+    <!-- Hiển thị thông báo -->
+    {% if messages %} {% for message in messages %}
+    <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+      {{ message }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    {% endfor %} {% endif %}
+
+    <!-- Form xác thực OTP -->
+    <form method="post">
+      {% csrf_token %}
+
+      <div class="mb-3">
+        <label for="otp_code" class="form-label">
+          <i class="bi bi-key"></i> Mã OTP
+        </label>
+        <input
+          type="text"
+          id="otp_code"
+          name="otp_code"
+          class="form-control text-center fs-4"
+          placeholder="000000"
+          maxlength="6"
+          pattern="[0-9]{6}"
+          required
+        />
+        <div class="form-text">Mã có hiệu lực trong 10 phút</div>
+      </div>
+
+      <div class="mb-3">
+        <label for="new_password" class="form-label">
+          <i class="bi bi-lock"></i> Mật khẩu mới
+        </label>
+        <div class="input-group">
+          <input
+            type="password"
+            id="new_password"
+            name="new_password"
+            class="form-control"
+            placeholder="Nhập mật khẩu mới"
+            required
+          />
+          <span
+            class="input-group-text toggle-password"
+            onclick="togglePassword('new_password', this)"
+          >
+            <i class="bi bi-eye"></i>
+          </span>
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <label for="confirm_password" class="form-label">
+          <i class="bi bi-lock-fill"></i> Xác nhận mật khẩu
+        </label>
+        <div class="input-group">
+          <input
+            type="password"
+            id="confirm_password"
+            name="confirm_password"
+            class="form-control"
+            placeholder="Nhập lại mật khẩu mới"
+            required
+          />
+          <span
+            class="input-group-text toggle-password"
+            onclick="togglePassword('confirm_password', this)"
+          >
+            <i class="bi bi-eye"></i>
+          </span>
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-success w-100 py-2 fw-bold mb-3">
+        <i class="bi bi-check-circle"></i> Đặt lại mật khẩu
+      </button>
+    </form>
+
+    <!-- Links -->
+    <div class="text-center">
+      <div class="mb-2">
+        <a href="{% url 'shop:forgot_password' %}" class="text-decoration-none">
+          <i class="bi bi-arrow-clockwise"></i> Gửi lại mã OTP
+        </a>
+      </div>
+      <a href="{% url 'shop:login' %}" class="text-decoration-none">
+        <i class="bi bi-arrow-left"></i> Quay lại đăng nhập
+      </a>
+    </div>
+  </div>
+</div>
+
+<script>
+  function togglePassword(fieldId, element) {
+    const passwordField = document.getElementById(fieldId);
+    const icon = element.querySelector("i");
+
+    if (passwordField.type === "password") {
+      passwordField.type = "text";
+      icon.className = "bi bi-eye-slash";
+    } else {
+      passwordField.type = "password";
+      icon.className = "bi bi-eye";
+    }
+  }
+
+  // Auto-format OTP input
+  document.getElementById("otp_code").addEventListener("input", function (e) {
+    let value = e.target.value.replace(/\D/g, "");
+    if (value.length > 6) value = value.slice(0, 6);
+    e.target.value = value;
+  });
+</script>
+{% endblock %}
