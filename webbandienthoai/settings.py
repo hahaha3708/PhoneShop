@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.humanize',
     'app',
     "django_extensions",
 ]
@@ -84,9 +85,9 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'webbandienthoai',
         'USER': 'root',
-        'PASSWORD': '',
+        'PASSWORD': '123456789',
         'HOST': '127.0.0.1',
-        'PORT': '3307',
+        'PORT': '3306',
         'OPTIONS': {
             'charset': 'utf8mb4',
         },
@@ -130,6 +131,10 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
+
+# Media files
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
 from django.contrib.messages import constants as messages
 MESSAGE_TAGS = {
 messages.DEBUG: 'secondary',
@@ -142,4 +147,4 @@ messages.ERROR: 'danger',
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-LOGIN_REDIRECT_URL = '/'
+LOGIN_REDIRECT_URL = 'shop:home'

@@ -1,18 +1,64 @@
 {% extends 'base.html' %} {% load static %} {% load currency %} {% block title
 %}Trang chủ - PhoneShop{% block content %}
 <div class="container my-4">
+  <!-- Banner quảng cáo -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card border-0 shadow-sm">
+        <img src="{% static 'img/banner.jpg' %}" alt="Banner quảng cáo" class="card-img-top rounded">
+      </div>
+    </div>
+  </div>
+
   <div class="row g-4">
     <!-- ============ CỘT TRÁI: SẢN PHẨM ============ -->
     <div class="col-lg-9">
-      <!-- Banner -->
+      <!-- Featured Accessories Section -->
       <div class="mb-4">
-        <img
-          src="{% static 'img/banner.jpg' %}"
-          alt="Trả góp 0%"
-          class="img-fluid rounded w-100 mb-2 banner-box"
-        />
-        <div class="text-center text-danger fw-bold">
-          Trả góp không lãi suất 0%
+        <div class="bg-light p-4 rounded">
+          <div class="row mb-3">
+            <div class="col-12 text-center">
+              <h3 class="fw-bold text-primary mb-3">Phụ Kiện Nổi Bật</h3>
+              <p class="text-muted">Khám phá các phụ kiện chất lượng cao cho thiết bị của bạn</p>
+            </div>
+          </div>
+          <div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 g-3">
+            {% for accessory in featured_accessories %}
+            <div class="col">
+              <div class="card h-100 border-0 shadow-sm">
+                <a href="{% url 'shop:accessory_detail' accessory.slug %}" class="text-decoration-none">
+                  <img src="{{ accessory.image }}" class="card-img-top" alt="{{ accessory.name }}" style="height: 150px; object-fit: cover;">
+                </a>
+                <div class="card-body text-center">
+                  <h6 class="card-title text-truncate-2">
+                    <a href="{% url 'shop:accessory_detail' accessory.slug %}" class="stretched-link text-dark text-decoration-none">
+                      {{ accessory.name }}
+                    </a>
+                  </h6>
+                  <div class="text-muted small mb-2">{{ accessory.brand }}</div>
+                  <div class="fw-bold text-danger">
+                    {% if accessory.min_variant_price %}
+                      {{ accessory.min_variant_price|vnd }}
+                    {% else %}
+                      {{ accessory.price|vnd }}
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+            </div>
+            {% empty %}
+              <div class="col-12">
+                <div class="alert alert-info text-center">Chưa có phụ kiện nào được thêm.</div>
+              </div>
+            {% endfor %}
+          </div>
+          <div class="row mt-3">
+            <div class="col-12 text-center">
+              <a href="{% url 'shop:accessory_list' %}" class="btn btn-primary">
+                <i class="bi bi-grid"></i> Xem Tất Cả Phụ Kiện
+              </a>
+            </div>
+          </div>
         </div>
       </div>
 
