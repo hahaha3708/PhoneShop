@@ -14,13 +14,13 @@ PhoneShop{% endblock %} {% block extra_head %}
     <form method="post" id="loginForm">
       {% csrf_token %}
 
-      <!-- Số điện thoại -->
+      <!-- Email -->
       <div class="mb-3">
         <input
-          type="tel"
+          type="email"
           name="username"
           class="form-control"
-          placeholder="Nhập số điện thoại của bạn"
+          placeholder="Nhập email của bạn"
           required
         />
       </div>

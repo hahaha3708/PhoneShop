@@ -1,0 +1,117 @@
+{% extends 'admin/base.html' %}
+
+{% block page_title %}Quản lý Banner{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h4>Danh sách Banner</h4>
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addBannerModal">
+        Thêm Banner
+    </button>
+</div>
+
+<div class="row">
+    {% for banner in banners %}
+    <div class="col-md-4 mb-4">
+        <div class="card">
+            {% if banner.image %}
+                <img src="{{ banner.image.url }}" class="card-img-top" alt="{{ banner.title }}" style="height: 200px; object-fit: cover;">
+            {% endif %}
+            <div class="card-body">
+                <h5 class="card-title">{{ banner.title|default:"Banner" }}</h5>
+                <p class="card-text">
+                    <span class="badge bg-{% if banner.is_active %}success{% else %}secondary{% endif %}">
+                        {% if banner.is_active %}Hoạt động{% else %}Không hoạt động{% endif %}
+                    </span>
+                </p>
+                <small class="text-muted">Tạo: {{ banner.created_at|date:"d/m/Y H:i" }}</small>
+                <div class="mt-2">
+                    <button class="btn btn-sm btn-outline-primary" onclick="editBanner({{ banner.id }}, '{{ banner.title }}', {{ banner.is_active|lower }})">Sửa</button>
+                    <a href="{% url 'admin:banner_delete' banner.id %}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Bạn có chắc muốn xóa banner này?')">Xóa</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12">
+        <div class="alert alert-info">Chưa có banner nào</div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Modal thêm banner -->
+<div class="modal fade" id="addBannerModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Thêm Banner</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="title" class="form-label">Tiêu đề</label>
+                        <input type="text" class="form-control" id="title" name="title" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="image" class="form-label">Hình ảnh</label>
+                        <input type="file" class="form-control" id="image" name="image" accept="image/*" required>
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="is_active" name="is_active" checked>
+                        <label class="form-check-label" for="is_active">Hoạt động</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-primary">Thêm</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal sửa banner -->
+<div class="modal fade" id="editBannerModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Sửa Banner</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" enctype="multipart/form-data" action="{% url 'shop:admin_banners' %}">
+                {% csrf_token %}
+                <input type="hidden" id="edit_banner_id" name="banner_id">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="edit_title" class="form-label">Tiêu đề</label>
+                        <input type="text" class="form-control" id="edit_title" name="title" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit_image" class="form-label">Hình ảnh mới (tùy chọn)</label>
+                        <input type="file" class="form-control" id="edit_image" name="image" accept="image/*">
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="edit_is_active" name="is_active">
+                        <label class="form-check-label" for="edit_is_active">Hoạt động</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-primary">Lưu</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function editBanner(id, title, isActive) {
+    document.getElementById('edit_banner_id').value = id;
+    document.getElementById('edit_title').value = title;
+    document.getElementById('edit_is_active').checked = isActive;
+    new bootstrap.Modal(document.getElementById('editBannerModal')).show();
+}
+</script>
+{% endblock %}

@@ -10,6 +10,13 @@ from .models import Accessory, AccessoryCategory, AccessoryColor, AccessoryVaria
 from itertools import chain
 from django.core.paginator import Paginator
 from django.db.models import Value, CharField, F, Q
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib import messages
+from .models import Order, OrderItem, Inventory
+from django.db.models import Sum, Count
+from django.utils import timezone
+from datetime import timedelta
+from .forms import ProductForm
 
 # def home(request):
 #     new_products = Product.objects.all().order_by('-id')[:12]  # lấy 12 sản phẩm mới nhất
@@ -17,6 +24,11 @@ from django.db.models import Value, CharField, F, Q
 from django.utils import timezone
 
 def home(request):
+    # Only redirect admin users to admin dashboard if they are explicitly accessing the home page
+    # and not coming from a login redirect
+    if request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser) and not request.GET.get('next'):
+        return redirect('shop:admin_dashboard')
+
     news_list = [
         {
             "title": "iPhone 16 ra mắt: chip mới, pin lớn hơn",
@@ -41,7 +53,8 @@ def home(request):
         },
     ]
     ctx = {
-        "new_products":  Product.objects.all().order_by('-id')[:12],
+        "new_products":  Product.objects.all().order_by('name', '-id').distinct('name')[:12],
+        "featured_accessories": Accessory.objects.all().annotate(min_variant_price=Min("accessoryvariant__price")).order_by('-id')[:8],
         "news_list": news_list,
     }
     return render(request, "home.html", ctx)
@@ -474,3 +487,246 @@ def all_items_list(request):
         # dùng all_brands từ context processor để render bộ lọc hãng
     }
     return render(request, "products/all_items_list.html", ctx)
+
+# Admin views
+def is_admin(user):
+    return user.is_staff or user.is_superuser
+
+def admin_dashboard(request):
+    if not (request.user.is_staff or request.user.is_superuser):
+        return redirect('shop:home')
+    # Tổng quan
+    total_products = Product.objects.count()
+    total_accessories = Accessory.objects.count()
+    total_orders = Order.objects.count()
+    total_revenue = Order.objects.filter(status='delivered').aggregate(Sum('total_amount'))['total_amount__sum'] or 0
+
+    # Đơn hàng gần đây
+    recent_orders = Order.objects.select_related('user').order_by('-created_at')[:10]
+
+    # Sản phẩm bán chạy (dựa trên OrderItem)
+    top_products = OrderItem.objects.values('product_variant__product__name').annotate(
+        total_sold=Sum('quantity')
+    ).order_by('-total_sold')[:5]
+
+    ctx = {
+        'total_products': total_products,
+        'total_accessories': total_accessories,
+        'total_orders': total_orders,
+        'total_revenue': total_revenue,
+        'recent_orders': recent_orders,
+        'top_products': top_products,
+    }
+    return render(request, 'admin/dashboard.html', ctx)
+
+@login_required
+def admin_products(request):
+    if not (request.user.is_staff or request.user.is_superuser):
+        return redirect('shop:home')
+    products = Product.objects.all()
+    sort = request.GET.get('sort')
+    if sort == 'name':
+        products = products.order_by('name')
+    elif sort == 'price':
+        products = products.order_by('price')
+    elif sort == 'brand':
+        products = products.order_by('brand')
+    else:
+        products = products.order_by('-id')
+
+    paginator = Paginator(products, 20)  # 20 products per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    ctx = {
+        'products': page_obj,
+        'sort': sort,
+    }
+    return render(request, 'admin/products.html', ctx)
+
+@login_required
+def admin_product_add(request):
+    if not (request.user.is_staff or request.user.is_superuser):
+        return redirect('shop:home')
+
+    if request.method == 'POST':
+        form = ProductForm(request.POST)
+        if form.is_valid():
+            product = form.save()
+            messages.success(request, f'Sản phẩm "{product.name}" đã được thêm thành công.')
+            return redirect('shop:admin_products')
+    else:
+        form = ProductForm()
+
+    ctx = {
+        'form': form,
+        'title': 'Thêm sản phẩm mới',
+    }
+    return render(request, 'admin/product_form.html', ctx)
+
+@login_required
+def admin_product_edit(request, product_id):
+    if not (request.user.is_staff or request.user.is_superuser):
+        return redirect('shop:home')
+
+    product = get_object_or_404(Product, id=product_id)
+
+    if request.method == 'POST':
+        form = ProductForm(request.POST, instance=product)
+        if form.is_valid():
+            product = form.save()
+            messages.success(request, f'Sản phẩm "{product.name}" đã được cập nhật thành công.')
+            return redirect('shop:admin_products')
+    else:
+        form = ProductForm(instance=product)
+
+    ctx = {
+        'form': form,
+        'product': product,
+        'title': f'Chỉnh sửa sản phẩm: {product.name}',
+    }
+    return render(request, 'admin/product_form.html', ctx)
+
+@login_required
+def admin_product_delete(request, product_id):
+    if not (request.user.is_staff or request.user.is_superuser):
+        return redirect('shop:home')
+
+    product = get_object_or_404(Product, id=product_id)
+
+    if request.method == 'POST':
+        product_name = product.name
+        product.delete()
+        messages.success(request, f'Sản phẩm "{product_name}" đã được xóa thành công.')
+        return redirect('shop:admin_products')
+
+    ctx = {
+        'product': product,
+    }
+    return render(request, 'admin/product_confirm_delete.html', ctx)
+
+@login_required
+def admin_accessories(request):
+    if not (request.user.is_staff or request.user.is_superuser):
+        return redirect('shop:home')
+    accessories = Accessory.objects.all()
+    sort = request.GET.get('sort')
+    if sort == 'name':
+        accessories = accessories.order_by('name')
+    elif sort == 'price':
+        accessories = accessories.order_by('price')
+    elif sort == 'brand':
+        accessories = accessories.order_by('brand')
+    else:
+        accessories = accessories.order_by('-id')
+
+    paginator = Paginator(accessories, 20)  # 20 accessories per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    ctx = {
+        'accessories': page_obj,
+        'sort': sort,
+    }
+    return render(request, 'admin/accessories.html', ctx)
+
+@login_required
+def admin_accessory_add(request):
+    if not (request.user.is_staff or request.user.is_superuser):
+        return redirect('shop:home')
+
+    if request.method == 'POST':
+        form = AccessoryForm(request.POST)
+        if form.is_valid():
+            accessory = form.save()
+            messages.success(request, f'Phụ kiện "{accessory.name}" đã được thêm thành công.')
+            return redirect('shop:admin_accessories')
+    else:
+        form = AccessoryForm()
+
+    ctx = {
+        'form': form,
+        'title': 'Thêm phụ kiện mới',
+    }
+    return render(request, 'admin/accessory_form.html', ctx)
+
+@login_required
+def admin_accessory_edit(request, accessory_id):
+    if not (request.user.is_staff or request.user.is_superuser):
+        return redirect('shop:home')
+
+    accessory = get_object_or_404(Accessory, id=accessory_id)
+
+    if request.method == 'POST':
+        form = AccessoryForm(request.POST, instance=accessory)
+        if form.is_valid():
+            accessory = form.save()
+            messages.success(request, f'Phụ kiện "{accessory.name}" đã được cập nhật thành công.')
+            return redirect('shop:admin_accessories')
+    else:
+        form = AccessoryForm(instance=accessory)
+
+    ctx = {
+        'form': form,
+        'accessory': accessory,
+        'title': f'Chỉnh sửa phụ kiện: {accessory.name}',
+    }
+    return render(request, 'admin/accessory_form.html', ctx)
+
+@login_required
+def admin_accessory_delete(request, accessory_id):
+    if not (request.user.is_staff or request.user.is_superuser):
+        return redirect('shop:home')
+
+    accessory = get_object_or_404(Accessory, id=accessory_id)
+
+    if request.method == 'POST':
+        accessory_name = accessory.name
+        accessory.delete()
+        messages.success(request, f'Phụ kiện "{accessory_name}" đã được xóa thành công.')
+        return redirect('shop:admin_accessories')
+
+    ctx = {
+        'accessory': accessory,
+    }
+    return render(request, 'admin/accessory_confirm_delete.html', ctx)
+
+@login_required
+def admin_sales(request):
+    if not (request.user.is_staff or request.user.is_superuser):
+        return redirect('home')
+    # Thống kê bán hàng
+    period = request.GET.get('period', '30')  # ngày
+    days = int(period)
+    start_date = timezone.now() - timedelta(days=days)
+
+    orders = Order.objects.filter(created_at__gte=start_date)
+    total_sales = orders.filter(status='delivered').aggregate(Sum('total_amount'))['total_amount__sum'] or 0
+    total_orders = orders.count()
+
+    # Doanh thu theo ngày
+    sales_data = orders.filter(status='delivered').extra(
+        select={'date': 'DATE(created_at)'}
+    ).values('date').annotate(total=Sum('total_amount')).order_by('date')
+
+    ctx = {
+        'total_sales': total_sales,
+        'total_orders': total_orders,
+        'sales_data': sales_data,
+        'period': period,
+    }
+    return render(request, 'admin/sales.html', ctx)
+
+@login_required
+def admin_inventory(request):
+    if not (request.user.is_staff or request.user.is_superuser):
+        return redirect('home')
+    # Hiển thị tồn kho
+    product_inventory = Inventory.objects.filter(product_variant__isnull=False).select_related('product_variant__product')
+    accessory_inventory = Inventory.objects.filter(accessory_variant__isnull=False).select_related('accessory_variant__accessory')
+
+    ctx = {
+        'product_inventory': product_inventory,
+        'accessory_inventory': accessory_inventory,
+    }
+    return render(request, 'admin/inventory.html', ctx)
