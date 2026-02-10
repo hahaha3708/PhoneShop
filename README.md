@@ -140,8 +140,7 @@ A comprehensive e-commerce platform built with Django for selling mobile phones 
 Here are some example screenshots of the PhoneShop application:
 
 ### Homepage
-![Homepage](<img width="908" height="865" alt="image" src="https://github.com/user-attachments/assets/8ca95a62-a832-42f6-9e2a-db2c52598dde" />
-)
+<img width="908" height="865" alt="image" src="https://github.com/user-attachments/assets/385d0f5c-69b1-44a9-b739-e65639946443" />
 *Main homepage showing featured products and news*
 
 ### Product Listing
