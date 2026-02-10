@@ -140,7 +140,8 @@ A comprehensive e-commerce platform built with Django for selling mobile phones 
 Here are some example screenshots of the PhoneShop application:
 
 ### Homepage
-![Homepage](screenshots/homepage.png)
+![Homepage](<img width="908" height="865" alt="image" src="https://github.com/user-attachments/assets/8ca95a62-a832-42f6-9e2a-db2c52598dde" />
+)
 *Main homepage showing featured products and news*
 
 ### Product Listing
@@ -243,10 +244,6 @@ PhoneShop/
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Support
-
-For support, email support@phoneshop.com or create an issue in the repository.
 
 ## Acknowledgments
 
