@@ -141,29 +141,21 @@ Here are some example screenshots of the PhoneShop application:
 
 ### Homepage
 <img width="908" height="865" alt="image" src="https://github.com/user-attachments/assets/385d0f5c-69b1-44a9-b739-e65639946443" />
-*Main homepage showing featured products and news*
 
 ### Product Listing
-![Product Listing](screenshots/products.png)
-*Product catalog with filtering options*
+<img width="877" height="870" alt="image" src="https://github.com/user-attachments/assets/05909788-6fa6-4218-9924-80f0a56054cc" />
 
 ### Product Detail
-![Product Detail](screenshots/product_detail.png)
-*Detailed product page with specifications*
+<img width="873" height="868" alt="image" src="https://github.com/user-attachments/assets/8d6d78ff-ae8f-4cea-ac3c-782963fd25f0" />
 
 ### Shopping Cart
-![Shopping Cart](screenshots/cart.png)
-*Cart page showing selected items*
+<img width="864" height="332" alt="image" src="https://github.com/user-attachments/assets/845bc671-129e-4e76-9b51-b244f98f2665" />
 
 ### Checkout Process
-![Checkout](screenshots/checkout.png)
-*Secure checkout form*
+<img width="1906" height="604" alt="image" src="https://github.com/user-attachments/assets/e6b49f86-40fc-4ec3-82d2-a44691206d71" />
 
 ### Admin Dashboard
-![Admin Dashboard](screenshots/admin_dashboard.png)
-*Administrative interface for managing products and orders*
-
-*Note: Replace the image paths with actual screenshot files you capture from your application.*
+<img width="1919" height="864" alt="image" src="https://github.com/user-attachments/assets/e01d658b-7652-4965-a932-dd8be2bcdb78" />
 
 ## Project Structure
 
